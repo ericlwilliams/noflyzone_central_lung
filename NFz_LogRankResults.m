@@ -370,8 +370,8 @@ for i=1:length(toxicities)
         
         ylim([0 0.3]);
         set(cur_fig,'Position',ss_four2three);
-        %grid on;
-        %set(gca,'GridLineStyle','--')
+        grid on;
+        set(gca,'GridLineStyle','--')
         
         if do_print,
             

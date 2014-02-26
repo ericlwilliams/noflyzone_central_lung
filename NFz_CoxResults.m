@@ -4,6 +4,7 @@ warning('off'); % ignore negative data warning
 screen_size=get(0,'ScreenSize');
 ss_four2three = [0 0 screen_size(3)/2 (screen_size(4)/2)*(4/3)];
 
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Check flags!
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -191,28 +192,31 @@ for i=1:length(toxicities)
         set(gcf,'Position',ss_four2three);
         
         if ~dx_no_corr, %still print empty figure for slides
-            semilogy(x_dvx,p','k-','LineWidth',1);hold on;
-            h_pos_pval=semilogy(x_dvx(flgCox),p(flgCox)','.','MarkerSize',25);hold on;
-            h_neg_pval=semilogy(x_dvx(~flgCox),p(~flgCox)','r.','MarkerSize',25);
-            h_sig=semilogy([0 max(x_dvx)],[0.05 0.05],'g--','LineWidth',2);
-            h_min_pval = semilogy([x_pos_dvx(ploc) x_pos_dvx(ploc)],ylim,strcat(corr_col,'--'),'LineWidth',2);
-            hold off;
+            loglog(x_dvx,p','k-','LineWidth',1);hold on;
+            h_pos_pval=loglog(x_dvx(flgCox),p(flgCox)','.','MarkerSize',25);hold on;
+            h_neg_pval=loglog(x_dvx(~flgCox),p(~flgCox)','r.','MarkerSize',25);
+            
+            h_min_pval = loglog([x_pos_dvx(ploc) x_pos_dvx(ploc)],ylim,strcat(corr_col,'--'),'LineWidth',2);
+            
             disp(['Cox model significant for D_V, with V <',num2str(interp1(p(1:20),x_dvx(1:20),0.05))]);
             xlim([0 max(x_dvx)]);
             ylim([min(min(p),0.05)-0.001 1]);
-            set(gca,'fontsize',18);
+            h_sig=loglog([min(x_dvx(x_dvx>0)) max(x_dvx)],[0.05 0.05],'g--','LineWidth',2);hold off;
             set(gca,'xminortick','on','yminortick','on');
             set(gca,'box','on');
             pval_str = {'Positive Corr.',...
                         'Negative Corr.',...
-                        ['Min p-val = ', num2str(min_p,2),10,...
-                'at D_{',num2str(x_pos_dvx(ploc),3),' cc}'],...
-                'p = 0.05'};
-           legend([h_pos_pval h_neg_pval h_min_pval h_sig],pval_str,...
-                'Location','Best');
-            %set(cur_lgnd,'FontSize',20);
-            xlabel('(D_{V}) Volume [cc]','fontsize',20);
-            ylabel('Cox model p-value','fontsize',20);
+                        ['Min $p$-val = ', num2str(min_p,2),10,...
+                'at $D_{',num2str(x_pos_dvx(ploc),3),' cc}$'],...
+                '$p = 0.05$'};
+
+           cur_lgnd = legend([h_pos_pval h_neg_pval h_min_pval h_sig],pval_str,...
+                'Location','SouthEast');
+            set(cur_lgnd,'FontSize',21);
+            set(cur_lgnd,'interpreter','latex');
+            xlabel('(D_{V}) Volume [cc]','fontsize',24);
+            ylabel('Cox model p-value','fontsize',24);
+            set(gca,'FontSize',22);
         else  %still printing empty figure for slides
             semilogy(x_dvx,p','k-','LineWidth',1);hold on;
             h_neg_pval=semilogy(x_dvx(~flgCox),p(~flgCox)','r.','MarkerSize',25);
@@ -234,8 +238,8 @@ for i=1:length(toxicities)
         if do_print,
             set(cur_fig,'Color','w');
          export_fig(cur_fig,...
-            [fig_basename,'_cox_dv_pvals'],'-pdf');
-        disp(['Saving ',fig_basename,'_cox_dv_pvals.pdf']);
+            [fig_basename,'_cox_dv_pvals'],'-png');
+        disp(['Saving ',fig_basename,'_cox_dv_pvals.png']);
         
         end
         
@@ -373,20 +377,25 @@ for i=1:length(toxicities)
             disp(['Cox model significant for V_D, for D >',num2str(interp1(p(flgCox),x_vdx(flgCox),0.05))]);
             xlim([0 max(x_vdx)]);
             ylim([min(min(p),0.05)-0.001 1]);
-            set(gca,'fontsize',18);
+            set(gca,'fontsize',22);
             set(gca,'xminortick','on','yminortick','on');
             set(gca,'box','on');
-            pval_str = {'Positive Corr.',...
+             pval_str = {'Positive Corr.',...
                         'Negative Corr.',...
-                        ['Min p-val = ', num2str(min_p,2),10,...
-                'at V_{',num2str(x_pos_vdx(ploc),3),' Gy}'],...
-                'p = 0.05'};
-           legend([h_pos_pval h_neg_pval h_min_pval h_sig],pval_str,...
-                'Location','Best');
-            legend_best_fit(gca);
+                        ['Min $p$-val = ', num2str(min_p,2),10,...
+                'at $V_{',num2str(x_pos_vdx(ploc),3),'~Gy}$'],...
+                '$p = 0.05$'};
+
+
+           cur_lgnd=legend([h_pos_pval h_neg_pval h_min_pval h_sig],pval_str,...
+                'Location','SouthWest');
+            
+            set(cur_lgnd,'FontSize',21);
+            set(cur_lgnd,'interpreter','latex');
+%             legend_best_fit(gca);
             %set(cur_lgnd,'FontSize',20);
-            xlabel('(V_{D}) Dose [Gy]','fontsize',20);
-            ylabel('Cox model p-value','fontsize',20);
+            xlabel('(V_{D}) Dose [Gy]','fontsize',24);
+            ylabel('Cox model p-value','fontsize',24);
         else  %still printing empty figure for slides
             semilogy(x_vdx,p','k-','LineWidth',1);hold on;
             h_neg_pval=semilogy(x_vdx(~flgCox),p(~flgCox)','r.','MarkerSize',25);
@@ -394,17 +403,17 @@ for i=1:length(toxicities)
             hold off;
             xlim([0 max(x_vdx)]);
             ylim([min(min(p),0.05)-0.001 1]);
-            set(gca,'fontsize',18);
+            set(gca,'fontsize',22);
             set(gca,'xminortick','on','yminortick','on');
             set(gca,'box','on');
             pval_str = {'Negative Corr.',...
                         'p = 0.05'};
            legend([h_neg_pval],pval_str,...
-                'Location','Best');
+                'Location','SouthWest');
             legend_best_fit(gca);
             %set(cur_lgnd,'FontSize',20);
-            xlabel('(V_{D}) Dose [Gy]','fontsize',20);
-            ylabel('Cox model p-value','fontsize',20);
+            xlabel('(V_{D}) Dose [Gy]','fontsize',22);
+            ylabel('Cox model p-value','fontsize',22);
         end
         
         if do_print,

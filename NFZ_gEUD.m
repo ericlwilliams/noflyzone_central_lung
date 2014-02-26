@@ -296,9 +296,9 @@ for i=1:length(toxicities)
         
         set(gca,'xminortick','on','yminortick','on');
         set(gca,'box','on');
-        set(gca,'FontSize',16);
-        xlabel('D_{max} [Gy_{10}]','FontSize',25);
-        ylabel('Complication rate observed','FontSize',22);
+        set(gca,'FontSize',22);
+        xlabel('D_{max} [Gy_{10}]','FontSize',24);
+        ylabel('Complication rate observed','FontSize',24);
         
         if do_print,
             set(cur_fig,'Color','w');
@@ -514,10 +514,10 @@ for i=1:length(toxicities)
         
         set(gca,'xminortick','on','yminortick','on');
         set(gca,'box','on');
-        set(gca,'FontSize',16);
+        set(gca,'FontSize',22);
         %xlabel('D_{05 cc} [Gy]','FontSize',25);
-        xlabel('D_{5 cc} [Gy_{10}]','FontSize',25);
-        ylabel('Complication rate observed','FontSize',22);
+        xlabel('D_{5 cc} [Gy_{10}]','FontSize',24);
+        ylabel('Complication rate observed','FontSize',24);
         
         if do_print,
             set(cur_fig,'Color','w');
@@ -726,10 +726,10 @@ for i=1:length(toxicities)
         
         set(gca,'xminortick','on','yminortick','on');
         set(gca,'box','on');
-        set(gca,'FontSize',16);
+        set(gca,'FontSize',22);
         %xlabel('D_{05 cc} [Gy]','FontSize',25);
-        xlabel('D_{3.5 cc} [Gy_{10}]','FontSize',25);
-        ylabel('Complication rate observed','FontSize',22);
+        xlabel('D_{3.5 cc} [Gy_{10}]','FontSize',24);
+        ylabel('Complication rate observed','FontSize',24);
         
         if do_print,
             set(cur_fig,'Color','w');
