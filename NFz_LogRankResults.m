@@ -21,7 +21,7 @@ fig_loc = 'Z:/elw/MATLAB/nfz_analy/slides/figures/latest/';
 
 %a2b = {'Inf' '3'};
 %a2b = {'10'};
-a2b = {'10'};
+a2b = {'Inf'};
 
 %structures = {'ILUNG' 'ESOPHAGUS' 'HEART' 'LUNGS' 'NFZ' 'PBT'};
 structures = {'ESOPHAGUS'};
@@ -211,7 +211,8 @@ for i=1:length(toxicities)
                 
       %% Best COX median split KM curve
       %dose=87.5;%a2b=3
-      dose=44.8;%a2b=10
+      %dose=44.8;%a2b=10
+      dose=25.6;%a2b=Inf
       split=-1;
         
         [cur_fig, ~, ~]=fPlotKaplanMeierCurve_VDx({CGobj},dose,split);

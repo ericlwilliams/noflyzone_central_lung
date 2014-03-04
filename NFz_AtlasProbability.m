@@ -61,12 +61,12 @@ for i=1:length(toxicities)
   
   
   set(gca,'FontSize',20)
-  xlabel('Dose [Gy]','FontSize',22);
+  xlabel('Physical Dose [Gy]','FontSize',22);
   ylabel('Volume [cc]','FontSize',22);
   
 %  ylim([0.1,15]);
     %set(gca,'YTick',[1:2:21]); set(gca,'YTickLabel',0:10:100);
-  title('Probability of true Esophageal Toxicity $\geq$ 20\%','interpreter','latex');
+%   title('Probability of true Esophageal Toxicity $\geq$ 20\%','interpreter','latex');
   %if do_print, print_fig(gcf,fig_loc,'msk_rp20pct','pdf');end;
   if do_print,
     set(cur_fig,'Color','w');
@@ -84,13 +84,20 @@ for i=1:length(toxicities)
   CGobj.fProbabilityFig_DVH('');
   hold on;
   % bin locations determined by hand
-  plot(91,39,'xk','MarkerSize',20,'LineWidth',4);hold off;
+  h_fit=plot(91,39,'xk','MarkerSize',20,'LineWidth',4);
+  h_med=plot(58,39,'+k','MarkerSize',20,'LineWidth',4);
+    hold off;
+  lgnd=legend([h_med h_fit],...
+      'Median split* of D_{3.5cc} [Gy_{10}] for complete dataset in physical dose',...
+      'Split* at 20% rate from regression using D_{3.5cc} [Gy_{10}]',...
+      'Location','North');
+  set(lgnd,'FontSize',14);
   %ylim([0.1,15]);
-  
+  text(0,-0.11,['*Back calculated to physical',10', 'dose delivered in 5 fractions'],'Units','normalized');
    set(gca,'FontSize',20)
-  xlabel('Dose [Gy]','FontSize',22);
+  xlabel('Physical Dose [Gy]','FontSize',22);
   ylabel('Volume [cc]','FontSize',22);
-  title('Probability of true Esophageal Toxicity $\geq$ 20\%','interpreter','latex')
+%   title('Probability of true Esophageal Toxicity $\geq$ 20\%','interpreter','latex')
   %if do_print, print_fig(gcf,fig_loc,'msk_rp20pct','pdf');end;
   if do_print,
     set(cur_fig,'Color','w');
@@ -108,12 +115,20 @@ for i=1:length(toxicities)
   CGobj.fProbabilityFig_DVH('');
   hold on;
   % bin locations determined by hand
-  plot(86,39,'xk','MarkerSize',20,'LineWidth',4);hold off;
-  
+  h_fit=plot(86,39,'xk','MarkerSize',20,'LineWidth',4);
+  h_med=plot(56,39,'+k','MarkerSize',20,'LineWidth',4);
+  hold off;
+   lgnd=legend([h_med h_fit],...
+      'Median split* of D_{3.5cc} [Gy_{10}] for complete dataset in physical dose',...
+      'Split* at 20% rate from regression using D_{3.5cc} [Gy_{10}]',...
+      'Location','North');
+  set(lgnd,'FontSize',14);
+  %ylim([0.1,15]);
+  text(0,-0.11,['*Back calculated to physical',10', 'dose delivered in 4 fractions'],'Units','normalized');
      set(gca,'FontSize',20)
-  xlabel('Dose [Gy]','FontSize',22);
+  xlabel('Physical Dose [Gy]','FontSize',22);
   ylabel('Volume [cc]','FontSize',22);
-  title('Probability of true Esophageal Toxicity $\geq$ 20\%','interpreter','latex');
+%   title('Probability of true Esophageal Toxicity $\geq$ 20\%','interpreter','latex');
   
 %  ylim([0.1,15]);
   
@@ -134,12 +149,21 @@ for i=1:length(toxicities)
   CGobj.fProbabilityFig_DVH('');
   hold on;
   % bin locations determined by hand
-  plot(82,39,'xk','MarkerSize',20,'LineWidth',4);hold off;
+  h_fit=plot(80,39,'xk','MarkerSize',20,'LineWidth',4);
+   h_med=plot(53,39,'+k','MarkerSize',20,'LineWidth',4);
+  hold off;
+  lgnd=legend([h_med h_fit],...
+      'Median split* of D_{3.5cc} [Gy_{10}] for complete dataset in physical dose',...
+      'Split* at 20% rate from regression using D_{3.5cc} [Gy_{10}]',...
+      'Location','North');
+  set(lgnd,'FontSize',14);
+  %ylim([0.1,15]);
+  text(0,-0.11,['*Back calculated to physical',10', 'dose delivered in 3 fractions'],'Units','normalized');
   
      set(gca,'FontSize',20)
-  xlabel('Dose [Gy]','FontSize',22);
+  xlabel('Physical Dose [Gy]','FontSize',22);
   ylabel('Volume [cc]','FontSize',22);
-  title('Probability of true Esophageal Toxicity $\geq$ 20\%','interpreter','latex');
+%   title('Probability of true Esophageal Toxicity $\geq$ 20\%','interpreter','latex');
   
 %  ylim([0.1,15]);
   

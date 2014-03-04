@@ -3,8 +3,8 @@ tic;
 save_result = true;
 mm_do_print = false;
 %beta2alpha=[1/3];a2b_corr = 'BED';
-beta2alpha=[1/10];a2b_corr = 'BED';
-%beta2alpha=[0];a2b_corr = 'PHYS';
+% beta2alpha=[1/10];a2b_corr = 'BED';
+beta2alpha=[0];a2b_corr = 'PHYS';
 
 tox_grade = 2;% toxicity defined as >= tox_grade
 
@@ -22,11 +22,11 @@ end
 %structures = {'CLUNG' 'ILUNG' 'ESOPHAGUS' 'HEART'...
                 %'NFZ' 'PBT' 'TRACHEA' 'LUNGS'};
                 
-structures = {'ILUNG' 'ESOPHAGUS' 'HEART'...
-                'NFZ' 'PBT' 'LUNGS'};
+% structures = {'ILUNG' 'ESOPHAGUS' 'HEART'...
+%                 'NFZ' 'PBT' 'LUNGS'};
 %structures = {'PTV' 'GTV'};
 
-%structures = {'ESOPHAGUS'};
+structures = {'ESOPHAGUS'};
 
 %structures = {'HEART'};
 
@@ -34,17 +34,17 @@ structures = {'ILUNG' 'ESOPHAGUS' 'HEART'...
 %tox_columns = {'Local Failure'};
 %toxdate_columns = {'Local Failure Date'};
 
-toxicities = {'pultox'};
-tox_columns = {'Highest pulmonary toxicity or RT pneumonitis grade'};
-toxdate_columns = {'Pulmonary tox date'};
+% toxicities = {'pultox'};
+% tox_columns = {'Highest pulmonary toxicity or RT pneumonitis grade'};
+% toxdate_columns = {'Pulmonary tox date'};
  
 %toxicities = {'rp'};
 %tox_columns = {'RT pneumonitis grade'};
 %toxdate_columns = {'RP date'};
 
-%toxicities = {'esotox'};
-%tox_columns = {'Highest esophagitis grade'};
-%toxdate_columns = {'Highest esophagitis date'};
+toxicities = {'esotox'};
+tox_columns = {'Highest esophagitis grade'};
+toxdate_columns = {'Highest esophagitis date'};
 
 do_exclude_fu=false;
 
@@ -337,22 +337,12 @@ for i=1:length(toxicities)
 
         %     %% Analyses
         
-    %LogisticBetaRange = {(-10:0.1:10)'; (-1:0.01:1)'};
-        % for testing
-        LogisticBetaRange = {(-10:0.05:10)'; (-1:0.005:1)'};
-        CGobj_org.mLogisticRegressionGridBetaRange = LogisticBetaRange;
-        disp(['gEUD Mixture Model...']);
-        
-        fig_loc='Z:\elw\MATLAB\nfz_analy\slides\figures\latest\';
+    
       
         
-        
-%         LogisticBetaRange = {(-10:0.1:10)'; (-1:0.01:1)'};
-%         CGobj_org.mLogisticRegressionGridBetaRange = LogisticBetaRange;
-% 
-%         disp(['Logistic Grid']);            
-%         CGobj_org = CGobj_org.fLogisticRegressionGridExact_EUD();
-%         
+
+      
+          
 
         %% TMP
 %         %% Cox model
@@ -375,8 +365,15 @@ for i=1:length(toxicities)
         disp(['OveralCompCurve...']);
         CGobj_org = CGobj_org.fOverallCompCurve();
 
-         %TMP
-        %CGobj_org = CGobj_org.fLogisticRegressionGridExactMixtureModel_EUD(mm_do_print,fig_loc);
+        %LogisticBetaRange = {(-10:0.1:10)'; (-1:0.01:1)'};
+        LogisticBetaRange = {(-10:0.05:10)'; (-1:0.005:1)'};
+        CGobj_org.mLogisticRegressionGridBetaRange = LogisticBetaRange;
+        disp(['Logistic Grid']);
+        CGobj_org = CGobj_org.fLogisticRegressionGridExact_EUD();
+        
+        
+        disp(['gEUD Mixture Model...']);
+        fig_loc='Z:\elw\MATLAB\nfz_analy\slides\figures\latest\';
         CGobj_org = CGobj_org.fLogisticRegressionGridExactMixtureModel_2_EUD(mm_do_print,fig_loc);
         
             

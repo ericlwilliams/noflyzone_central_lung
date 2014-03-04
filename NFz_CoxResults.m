@@ -30,7 +30,7 @@ toxicities = {'esotox'};
 fp = 'Z:\elw\MATLAB\nfz_analy\meta_data\';
 
 %a2b = {'Inf' '3' '10'};
-a2b = {'10'};
+a2b = {'Inf'};
 
 for i=1:length(toxicities)
     
@@ -117,11 +117,11 @@ for i=1:length(toxicities)
            %lowCI95 = mx - 1.96; % 95% confidence
              best_cox_dv = DVxCox(doseloc).data_exposure;
         
-            plot(x_dvx,logl','k-','LineWidth',1);hold on;
-            h_corr=plot(x_dvx(flgCox), logl(flgCox)','.','MarkerSize',25);
-            h_acorr=plot(x_dvx(~flgCox), logl(~flgCox)','r.','MarkerSize',25);
-            h_low_68cl=plot([0 max(x_dvx)],[lowCI68 lowCI68],'g--','LineWidth',2);
-            h_mx_logl=plot([x_pos_dvx(doseloc) x_pos_dvx(doseloc)],ylim,strcat(corr_col,'--'),'LineWidth',2);
+            loglog(x_dvx,logl','k-','LineWidth',1);hold on;
+            h_corr=loglog(x_dvx(flgCox), logl(flgCox)','.','MarkerSize',25);
+            h_acorr=loglog(x_dvx(~flgCox), logl(~flgCox)','r.','MarkerSize',25);
+            h_low_68cl=loglog([x_dvx(2) max(x_dvx)],[lowCI68 lowCI68],'g--','LineWidth',2);
+            h_mx_logl=loglog([x_pos_dvx(doseloc) x_pos_dvx(doseloc)],ylim,strcat(corr_col,'--'),'LineWidth',2);
             hold off;
             xlim([0 max(x_dvx)]);
             set(gca,'fontsize',18);
@@ -238,8 +238,8 @@ for i=1:length(toxicities)
         if do_print,
             set(cur_fig,'Color','w');
          export_fig(cur_fig,...
-            [fig_basename,'_cox_dv_pvals'],'-png');
-        disp(['Saving ',fig_basename,'_cox_dv_pvals.png']);
+            [fig_basename,'_cox_dv_pvals'],'-pdf');
+        disp(['Saving ',fig_basename,'_cox_dv_pvals.pdf']);
         
         end
         
@@ -383,7 +383,7 @@ for i=1:length(toxicities)
              pval_str = {'Positive Corr.',...
                         'Negative Corr.',...
                         ['Min $p$-val = ', num2str(min_p,2),10,...
-                'at $V_{',num2str(x_pos_vdx(ploc),3),'~Gy}$'],...
+                'at $V_{',num2str(x_pos_vdx(ploc),3),'~Gy_{10}}$'],...
                 '$p = 0.05$'};
 
 
@@ -394,7 +394,7 @@ for i=1:length(toxicities)
             set(cur_lgnd,'interpreter','latex');
 %             legend_best_fit(gca);
             %set(cur_lgnd,'FontSize',20);
-            xlabel('(V_{D}) Dose [Gy]','fontsize',24);
+            xlabel('(V_{D}) Dose [Gy_{10}]','fontsize',24);
             ylabel('Cox model p-value','fontsize',24);
         else  %still printing empty figure for slides
             semilogy(x_vdx,p','k-','LineWidth',1);hold on;
@@ -445,7 +445,184 @@ for i=1:length(toxicities)
          disp(['Best D_V + V_D Cox model pvalues: ',num2str([cur_stats.p]')]);
     end
 % %         
+       
+if isequal(a2b{i},'Inf'),
+
+
+ %% DVx +  Fx Cox PH Model results
+        [DVxCox,orgFlgCox,flganti] = CGobj.fCoxParameter_DVH('DVxFx'); % find availabe Cox models
+
+        orgFlgCox(flganti)=false; % anti-correlations were not be considered
+        flgCox = orgFlgCox;
         
+        infFlg = isinf([DVxCox.beta])';
+
+        infFlg = [isinf(infFlg(:,1))].*[isinf(infFlg(:,2))];
+        
+        dx_no_corr = (sum(flgCox)<2); % no correlations found, shouldn't happen?
+    
+        % remove infinites
+         flgCox = flgCox(~infFlg);
+         DVxCox = DVxCox(~infFlg);
+         x_dvx=CGobj.mBinsVol(~infFlg);
+        
+       
+        
+        
+        %% DVx llhds
+        logl = [DVxCox.logl]'; %logl(~flgCox) = -inf; % log likelihood of Cox model, anti-correlation points not counted
+       
+        
+        cur_fig=figure(cur_fig_ctr); clf reset;
+        set(gcf,'Position',ss_four2three);
+        
+        if ~dx_no_corr,
+           
+           
+            corr_col = 'b';
+           if isequal(toxicities{i},'lclfail'), % find max for *anti-corr*
+               [mx,doseloc]=max(logl(~flgCox)); % the best fitting of Cox model
+                x_pos_dvx = x_dvx(~flgCox);
+                corr_col = 'r';
+           else
+               [mx,doseloc]=max(logl(flgCox)); % the best fitting of Cox model
+                x_pos_dvx = x_dvx(flgCox);
+           end
+           lowCI68 = mx - 0.5; % 68% confidence
+           %lowCI95 = mx - 1.96; % 95% confidence
+             best_cox_dv = DVxCox(doseloc).data_exposure;
+        
+            loglog(x_dvx,logl','k-','LineWidth',1);hold on;
+            h_corr=loglog(x_dvx(flgCox), logl(flgCox)','.','MarkerSize',25);
+            h_acorr=loglog(x_dvx(~flgCox), logl(~flgCox)','r.','MarkerSize',25);
+            h_low_68cl=loglog([x_dvx(2) max(x_dvx)],[lowCI68 lowCI68],'g--','LineWidth',2);
+            h_mx_logl=loglog([x_pos_dvx(doseloc) x_pos_dvx(doseloc)],ylim,strcat(corr_col,'--'),'LineWidth',2);
+            hold off;
+            xlim([0 max(x_dvx)]);
+            set(gca,'fontsize',18);
+            set(gca,'xminortick','on','yminortick','on');
+            set(gca,'box','on');
+            xlabel('(D_{V}) Volume [cc]','fontsize',20);
+            ylabel('Cox model log-likelihood','fontsize',20);
+            logl_str = {'Positive Corr.',...
+                        'Negative Corr.',...
+                        ['Max LL = ', num2str(mx,3),10,...
+                'at D_{',num2str(x_pos_dvx(doseloc),3),'cc}'],...
+                '68% CL'};
+            legend([h_corr h_acorr h_mx_logl h_low_68cl],logl_str,...
+                'Location','Best');
+        else  %still printing empty figure for slides
+            
+            plot(x_dvx,logl','k-','LineWidth',1);hold on;
+            %h_corr=plot(x_dvx(flgCox), logl(flgCox)','.','MarkerSize',25);
+            h_acorr=plot(x_dvx(~flgCox), logl(~flgCox)','r.','MarkerSize',25);
+            hold off;
+            xlim([0 max(x_dvx)]);
+            set(gca,'fontsize',18);
+            set(gca,'xminortick','on','yminortick','on');
+            set(gca,'box','on');
+            xlabel('(D_{V}) Volume [cc]','fontsize',20);
+            ylabel('Cox model log-likelihood','fontsize',20);
+            logl_str = {'Negative Corr.'};
+            legend([h_acorr],logl_str,...
+                'Location','Best');
+            
+        end
+        
+        
+        if do_print,
+            set(cur_fig,'Color','w');
+         export_fig(cur_fig,...
+            [fig_basename,'_cox_dvfx_llhds'],'-pdf');
+        disp(['Saving ',fig_basename,'_cox_dvfx_llhds.pdf']);
+        end
+        
+        
+        %% DVx Correlatinos
+        if ~dx_no_corr,
+            dvx_corrs = corr([DVxCox.data_exposure],[DVxCox.data_exposure]).^2;
+            figure(cur_fig_ctr+100);
+            imagesc(x_dvx,x_dvx,dvx_corrs);
+            set(gca,'YDir','normal');
+            colorbar;
+            title('D_{V} R^2 Correlations','FontSize',14);
+            xlabel('(D_{V}) Volume [cc]','FontSize',14)
+            ylabel('(D_{V}) Volume [cc]','FontSize',14)
+        end
+        
+        %% DVx p-vals
+        p = ones(size(DVxCox));
+        p = [DVxCox.p]';
+        
+        
+       if isequal(toxicities{i},'lclfail'), % find max for *anti-corr*
+           [min_p,ploc] = min(p(~flgCox));
+       else
+            [min_p,ploc] = min(p(flgCox));
+       end
+
+    p_dv = p(:,1);
+    p_fx = p(:,2);
+        
+        cur_fig=figure(cur_fig_ctr+200); clf reset;
+        set(gcf,'Position',ss_four2three);
+        
+        if ~dx_no_corr, %still print empty figure for slides
+            loglog(x_dvx,p','k-','LineWidth',1);hold on;
+            h_pos_pval=loglog(x_dvx(flgCox),p_dv(flgCox)','.','MarkerSize',25);hold on;
+            loglog(x_dvx(flgCox),p_fx(flgCox)','.','MarkerSize',25);hold on;
+            h_neg_pval=loglog(x_dvx(~flgCox),p_dv(~flgCox)','r.','MarkerSize',25);
+            loglog(x_dvx(~flgCox),p_fx(~flgCox)','r.','MarkerSize',25);
+            
+            h_min_pval = loglog([x_pos_dvx(ploc) x_pos_dvx(ploc)],ylim,strcat(corr_col,'--'),'LineWidth',2);
+            
+            disp(['Cox model significant for D_V, with V <',num2str(interp1(p(1:20),x_dvx(1:20),0.05))]);
+            xlim([0 max(x_dvx)]);
+            ylim([min(min(min(p)),0.05)-0.001 1]);
+            h_sig=loglog([min(x_dvx(x_dvx>0)) max(x_dvx)],[0.05 0.05],'g--','LineWidth',2);hold off;
+            set(gca,'xminortick','on','yminortick','on');
+            set(gca,'box','on');
+            pval_str = {'Positive Corr.',...
+                        'Negative Corr.',...
+                        ['Min $p$-val = ', num2str(min_p,2),10,...
+                'at $D_{',num2str(x_pos_dvx(ploc),3),' cc}$'],...
+                '$p = 0.05$'};
+
+           cur_lgnd = legend([h_pos_pval h_neg_pval h_min_pval h_sig],pval_str,...
+                'Location','SouthEast');
+            set(cur_lgnd,'FontSize',21);
+            set(cur_lgnd,'interpreter','latex');
+            xlabel('(D_{V}) Volume [cc]','fontsize',24);
+            ylabel('Cox model p-value','fontsize',24);
+            set(gca,'FontSize',22);
+        else  %still printing empty figure for slides
+            semilogy(x_dvx,p','k-','LineWidth',1);hold on;
+            h_neg_pval=semilogy(x_dvx(~flgCox),p(~flgCox)','r.','MarkerSize',25);
+            h_sig=semilogy([0 max(x_dvx)],[0.05 0.05],'g--','LineWidth',2);
+            hold off;
+            xlim([0 max(x_dvx)]);
+            ylim([min(min(p),0.05)-0.001 1]);
+            set(gca,'fontsize',18);
+            set(gca,'xminortick','on','yminortick','on');
+            set(gca,'box','on');
+            pval_str = {'Negative Corr.' 'p = 0.05'};
+           legend([h_neg_pval h_sig],pval_str,...
+                    'Location','Best');
+            %set(cur_lgnd,'FontSize',20);
+            xlabel('(D_{V}) Volume [cc]','fontsize',20);
+            ylabel('Cox model p-value','fontsize',20);
+        end
+        
+        if do_print,
+            set(cur_fig,'Color','w');
+         export_fig(cur_fig,...
+            [fig_basename,'_cox_dvfx_pvals'],'-pdf');
+        disp(['Saving ',fig_basename,'_cox_dvfx_pvals.pdf']);
+        
+        end
+end
+        
+
     end
 end
 end

@@ -25,11 +25,10 @@ comp_rate = 0.2;
 
 fp = 'Z:\elw\MATLAB\nfz_analy\meta_data\';
 
-%a2b = {'3'};
-%cur_a2b = 3;
-a2b = {'10'};
-cur_a2b = 10;
-
+% a2b = {'10'};
+% cur_a2b = 10;
+a2b = {'Inf'};
+cur_a2b = Inf;
 
 for i=1:length(toxicities)
     
@@ -235,7 +234,7 @@ for i=1:length(toxicities)
         dmax_limlo = interp1(rpb+rphi,doses,comp_rate);
         
         if (~isnan(dmax_lim) && ~isnan(dmax_limhi) && ~isnan(dmax_limlo)) &&...
-                (~isinf(dmax_lim) && ~isinf(dmax_limhi) && ~isinf(dmax_limlo)),
+                (~isinf(dmax_lim) && ~isinf(dmax_limhi) && ~isinf(dmax_limlo) && ~isinf(cur_a2b)),
             
             dmax_phys = [max(roots([1 cur_a2b*3 -cur_a2b*3*dmax_lim])),...
                 max(roots([1 cur_a2b*4 -cur_a2b*4*dmax_lim])),...
@@ -298,7 +297,7 @@ for i=1:length(toxicities)
         set(gca,'box','on');
         set(gca,'FontSize',22);
         xlabel('D_{max} [Gy_{10}]','FontSize',24);
-        ylabel('Complication rate observed','FontSize',24);
+        ylabel('Complication rate','FontSize',24);
         
         if do_print,
             set(cur_fig,'Color','w');
@@ -323,19 +322,19 @@ for i=1:length(toxicities)
             rate_vs_dmax_hi(l) = interp1(rpb-rplo,doses,rates(l));
             rate_vs_dmax_lo(l) = interp1(rpb+rphi,doses,rates(l));
             
-            if ~isnan(rate_vs_dmax(l)),
+            if ~isnan(rate_vs_dmax(l)) && ~isinf(cur_a2b),
             rate_vs_phys_dmax(l,1) = max(roots([1 cur_a2b*3 -cur_a2b*3*rate_vs_dmax(l)]));
             rate_vs_phys_dmax(l,2) =  max(roots([1 cur_a2b*4 -cur_a2b*4*rate_vs_dmax(l)]));
             rate_vs_phys_dmax(l,3) =  max(roots([1 cur_a2b*5 -cur_a2b*5*rate_vs_dmax(l)]));
             end
             
-            if ~isnan(rate_vs_dmax_hi(l)),
+            if ~isnan(rate_vs_dmax_hi(l)) && ~isinf(cur_a2b),
             rate_vs_phys_dmax_hi(l,1) = max(roots([1 cur_a2b*3 -cur_a2b*3*rate_vs_dmax_hi(l)]));
             rate_vs_phys_dmax_hi(l,2) =  max(roots([1 cur_a2b*4 -cur_a2b*4*rate_vs_dmax_hi(l)]));
             rate_vs_phys_dmax_hi(l,3) =  max(roots([1 cur_a2b*5 -cur_a2b*5*rate_vs_dmax_hi(l)]));
             end
             
-            if ~isnan(rate_vs_dmax_lo(l)),
+            if ~isnan(rate_vs_dmax_lo(l)) && ~isinf(cur_a2b),
             rate_vs_phys_dmax_lo(l,1) = max(roots([1 cur_a2b*3 -cur_a2b*3*rate_vs_dmax_lo(l)]));
             rate_vs_phys_dmax_lo(l,2) =  max(roots([1 cur_a2b*4 -cur_a2b*4*rate_vs_dmax_lo(l)]));
             rate_vs_phys_dmax_lo(l,3) =  max(roots([1 cur_a2b*5 -cur_a2b*5*rate_vs_dmax_lo(l)]));
@@ -451,7 +450,7 @@ for i=1:length(toxicities)
         d05_limlo = interp1(rpb+rphi,doses,comp_rate);
          
         if (~isnan(d05_lim) && ~isnan(d05_limhi) && ~isnan(d05_limlo)) &&...
-                (~isinf(d05_lim) && ~isinf(d05_limhi) && ~isinf(d05_limlo)),
+                (~isinf(d05_lim) && ~isinf(d05_limhi) && ~isinf(d05_limlo)) && ~isinf(cur_a2b),
             
         d05_phys = [max(roots([1 cur_a2b*3 -cur_a2b*3*d05_lim])),...
                     max(roots([1 cur_a2b*4 -cur_a2b*4*d05_lim])),...
@@ -517,7 +516,7 @@ for i=1:length(toxicities)
         set(gca,'FontSize',22);
         %xlabel('D_{05 cc} [Gy]','FontSize',25);
         xlabel('D_{5 cc} [Gy_{10}]','FontSize',24);
-        ylabel('Complication rate observed','FontSize',24);
+        ylabel('Complication rate','FontSize',24);
         
         if do_print,
             set(cur_fig,'Color','w');
@@ -540,24 +539,25 @@ for i=1:length(toxicities)
             rate_vs_d05_hi(l) = interp1(rpb-rplo,doses,rates(l));
             rate_vs_d05_lo(l) = interp1(rpb+rphi,doses,rates(l));
             
-        if ~isnan(rate_vs_d05(l)),
-            rate_vs_phys_d05(l,1) = max(roots([1 cur_a2b*3 -cur_a2b*3*rate_vs_d05(l)]));
-            rate_vs_phys_d05(l,2) =  max(roots([1 cur_a2b*4 -cur_a2b*4*rate_vs_d05(l)]));
-            rate_vs_phys_d05(l,3) =  max(roots([1 cur_a2b*5 -cur_a2b*5*rate_vs_d05(l)]));
+            if ~isinf(cur_a2b)
+                if ~isnan(rate_vs_d05(l)),
+                    rate_vs_phys_d05(l,1) = max(roots([1 cur_a2b*3 -cur_a2b*3*rate_vs_d05(l)]));
+                    rate_vs_phys_d05(l,2) =  max(roots([1 cur_a2b*4 -cur_a2b*4*rate_vs_d05(l)]));
+                    rate_vs_phys_d05(l,3) =  max(roots([1 cur_a2b*5 -cur_a2b*5*rate_vs_d05(l)]));
+                end
+                
+                if ~isnan(rate_vs_d05_hi(l)),
+                    rate_vs_phys_d05_hi(l,1) = max(roots([1 cur_a2b*3 -cur_a2b*3*rate_vs_d05_hi(l)]));
+                    rate_vs_phys_d05_hi(l,2) =  max(roots([1 cur_a2b*4 -cur_a2b*4*rate_vs_d05_hi(l)]));
+                    rate_vs_phys_d05_hi(l,3) =  max(roots([1 cur_a2b*5 -cur_a2b*5*rate_vs_d05_hi(l)]));
+                end
+                
+                if ~isnan(rate_vs_d05_lo(l)),
+                    rate_vs_phys_d05_lo(l,1) = max(roots([1 cur_a2b*3 -cur_a2b*3*rate_vs_d05_lo(l)]));
+                    rate_vs_phys_d05_lo(l,2) =  max(roots([1 cur_a2b*4 -cur_a2b*4*rate_vs_d05_lo(l)]));
+                    rate_vs_phys_d05_lo(l,3) =  max(roots([1 cur_a2b*5 -cur_a2b*5*rate_vs_d05_lo(l)]));
+                end
             end
-            
-            if ~isnan(rate_vs_d05_hi(l)),
-            rate_vs_phys_d05_hi(l,1) = max(roots([1 cur_a2b*3 -cur_a2b*3*rate_vs_d05_hi(l)]));
-            rate_vs_phys_d05_hi(l,2) =  max(roots([1 cur_a2b*4 -cur_a2b*4*rate_vs_d05_hi(l)]));
-            rate_vs_phys_d05_hi(l,3) =  max(roots([1 cur_a2b*5 -cur_a2b*5*rate_vs_d05_hi(l)]));
-            end
-            
-            if ~isnan(rate_vs_d05_lo(l)),
-            rate_vs_phys_d05_lo(l,1) = max(roots([1 cur_a2b*3 -cur_a2b*3*rate_vs_d05_lo(l)]));
-            rate_vs_phys_d05_lo(l,2) =  max(roots([1 cur_a2b*4 -cur_a2b*4*rate_vs_d05_lo(l)]));
-            rate_vs_phys_d05_lo(l,3) =  max(roots([1 cur_a2b*5 -cur_a2b*5*rate_vs_d05_lo(l)]));
-            end
-            
         end
         
          cur_fig=figure(cur_fig_ctr+550);
@@ -662,7 +662,7 @@ for i=1:length(toxicities)
         d35_limlo = interp1(rpb+rphi,doses,comp_rate);
         
      if (~isnan(d35_lim) && ~isnan(d35_limhi) && ~isnan(d35_limlo)) &&...
-                (~isinf(d35_lim) && ~isinf(d35_limhi) && ~isinf(d35_limlo)),
+                (~isinf(d35_lim) && ~isinf(d35_limhi) && ~isinf(d35_limlo)) && ~isinf(cur_a2b),
             
         d35_phys = [max(roots([1 cur_a2b*3 -cur_a2b*3*d35_lim])),...
                     max(roots([1 cur_a2b*4 -cur_a2b*4*d35_lim])),...
@@ -729,7 +729,7 @@ for i=1:length(toxicities)
         set(gca,'FontSize',22);
         %xlabel('D_{05 cc} [Gy]','FontSize',25);
         xlabel('D_{3.5 cc} [Gy_{10}]','FontSize',24);
-        ylabel('Complication rate observed','FontSize',24);
+        ylabel('Complication rate','FontSize',24);
         
         if do_print,
             set(cur_fig,'Color','w');
@@ -752,25 +752,25 @@ for i=1:length(toxicities)
             rate_vs_d35(l) = interp1(rpb,doses,rates(l));
             rate_vs_d35_hi(l) = interp1(rpb-rplo,doses,rates(l));
             rate_vs_d35_lo(l) = interp1(rpb+rphi,doses,rates(l));
-            
-           if ~isnan(rate_vs_d35(l)),
-            rate_vs_phys_d35(l,1) = max(roots([1 cur_a2b*3 -cur_a2b*3*rate_vs_d35(l)]));
-            rate_vs_phys_d35(l,2) =  max(roots([1 cur_a2b*4 -cur_a2b*4*rate_vs_d35(l)]));
-            rate_vs_phys_d35(l,3) =  max(roots([1 cur_a2b*5 -cur_a2b*5*rate_vs_d35(l)]));
+            if ~isinf(cur_a2b),
+                if ~isnan(rate_vs_d35(l)),
+                    rate_vs_phys_d35(l,1) = max(roots([1 cur_a2b*3 -cur_a2b*3*rate_vs_d35(l)]));
+                    rate_vs_phys_d35(l,2) =  max(roots([1 cur_a2b*4 -cur_a2b*4*rate_vs_d35(l)]));
+                    rate_vs_phys_d35(l,3) =  max(roots([1 cur_a2b*5 -cur_a2b*5*rate_vs_d35(l)]));
+                end
+                
+                if ~isnan(rate_vs_d35_hi(l)),
+                    rate_vs_phys_d35_hi(l,1) = max(roots([1 cur_a2b*3 -cur_a2b*3*rate_vs_d35_hi(l)]));
+                    rate_vs_phys_d35_hi(l,2) =  max(roots([1 cur_a2b*4 -cur_a2b*4*rate_vs_d35_hi(l)]));
+                    rate_vs_phys_d35_hi(l,3) =  max(roots([1 cur_a2b*5 -cur_a2b*5*rate_vs_d35_hi(l)]));
+                end
+                
+                if ~isnan(rate_vs_d35_lo(l)),
+                    rate_vs_phys_d35_lo(l,1) = max(roots([1 cur_a2b*3 -cur_a2b*3*rate_vs_d35_lo(l)]));
+                    rate_vs_phys_d35_lo(l,2) =  max(roots([1 cur_a2b*4 -cur_a2b*4*rate_vs_d35_lo(l)]));
+                    rate_vs_phys_d35_lo(l,3) =  max(roots([1 cur_a2b*5 -cur_a2b*5*rate_vs_d35_lo(l)]));
+                end
             end
-            
-            if ~isnan(rate_vs_d35_hi(l)),
-            rate_vs_phys_d35_hi(l,1) = max(roots([1 cur_a2b*3 -cur_a2b*3*rate_vs_d35_hi(l)]));
-            rate_vs_phys_d35_hi(l,2) =  max(roots([1 cur_a2b*4 -cur_a2b*4*rate_vs_d35_hi(l)]));
-            rate_vs_phys_d35_hi(l,3) =  max(roots([1 cur_a2b*5 -cur_a2b*5*rate_vs_d35_hi(l)]));
-            end
-            
-            if ~isnan(rate_vs_d35_lo(l)),
-            rate_vs_phys_d35_lo(l,1) = max(roots([1 cur_a2b*3 -cur_a2b*3*rate_vs_d35_lo(l)]));
-            rate_vs_phys_d35_lo(l,2) =  max(roots([1 cur_a2b*4 -cur_a2b*4*rate_vs_d35_lo(l)]));
-            rate_vs_phys_d35_lo(l,3) =  max(roots([1 cur_a2b*5 -cur_a2b*5*rate_vs_d35_lo(l)]));
-            end
-                        
         end
         
         cur_fig=figure(cur_fig_ctr+650);

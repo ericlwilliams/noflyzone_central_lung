@@ -16,8 +16,8 @@ toxicities = {'esotox'};
 
 fp = 'Z:\elw\MATLAB\nfz_analy\meta_data\';
 
-%a2b = {'Inf' '3'};
-a2b = {'10'};
+%a2b = {'Inf' '3' '10'};
+a2b = {'Inf'};
 
 
 for i=1:length(toxicities)
