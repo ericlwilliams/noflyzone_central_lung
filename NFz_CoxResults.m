@@ -30,7 +30,7 @@ toxicities = {'esotox'};
 fp = 'Z:\elw\MATLAB\nfz_analy\meta_data\';
 
 %a2b = {'Inf' '3' '10'};
-a2b = {'Inf'};
+a2b = {'10'};
 
 for i=1:length(toxicities)
     
@@ -93,6 +93,7 @@ for i=1:length(toxicities)
         
        
         
+      
         
         %% DVx llhds
         logl = [DVxCox.logl]'; %logl(~flgCox) = -inf; % log likelihood of Cox model, anti-correlation points not counted
@@ -154,6 +155,25 @@ for i=1:length(toxicities)
             
         end
         
+       [~,d35_doseloc] = min(abs(x_pos_dvx-3.5));
+          BestDVxCox = DVxCox(d35_doseloc);
+       disp('Best D3.5cc Cox parameter value and 95% CIs');
+        disp(['Beta: ',num2str(BestDVxCox.beta)])
+        disp(['95% CI: ',num2str(BestDVxCox.beta+ 0.9945*[-BestDVxCox.se BestDVxCox.se])]);
+        disp(['SE: ',num2str(BestDVxCox.se),' p: ',num2str(BestDVxCox.p),' Logl: ',num2str(BestDVxCox.logl)]);
+        
+        [~,d5_doseloc] = min(abs(x_pos_dvx-5));
+        BestDVxCox = DVxCox(d5_doseloc);
+        disp('Best D5.0cc Cox parameter value and 95% CIs');
+        disp(['Beta: ',num2str(BestDVxCox.beta)])
+        disp(['95% CI: ',num2str(BestDVxCox.beta+ 0.9945*[-BestDVxCox.se BestDVxCox.se])]);
+             disp(['SE: ',num2str(BestDVxCox.se),' p: ',num2str(BestDVxCox.p),' Logl: ',num2str(BestDVxCox.logl)]);
+             
+        BestDVxCox = DVxCox(1);
+        disp('Best Dmax Cox parameter value and 95% CIs');
+        disp(['Beta: ',num2str(BestDVxCox.beta)])
+        disp(['95% CI: ',num2str(BestDVxCox.beta+ 0.9945*[-BestDVxCox.se BestDVxCox.se])]);
+             disp(['SE: ',num2str(BestDVxCox.se),' p: ',num2str(BestDVxCox.p),' Logl: ',num2str(BestDVxCox.logl)]);
         
         if do_print,
             set(cur_fig,'Color','w');

@@ -27,8 +27,8 @@ fp = 'Z:\elw\MATLAB\nfz_analy\meta_data\';
 
 % a2b = {'10'};
 % cur_a2b = 10;
-a2b = {'Inf'};
-cur_a2b = Inf;
+a2b = {'10'};
+cur_a2b = 10;
 
 for i=1:length(toxicities)
     
@@ -212,6 +212,17 @@ for i=1:length(toxicities)
         %CGobj.mLogisticRegressionMat(k).b=b;
         %            CGobj.mLogisticRegressionMat(k).dev=dev;
         %            CGobj.mLogisticRegressionMat(k).stats=s;
+        disp('Dmax model coefficients');
+        disp(['beta: ',num2str(b(2))]);
+        disp(['95% CI: ',num2str(b(2) + 0.9945*[-s.se(2) s.se(2)])]);
+        
+        pr = exp(b(1)+b(2)*dmax);
+        pr = pr./(1+pr); % logistic probability
+        pr(~logical(ptcomp)) = 1-pr(~logical(ptcomp)); % non-complication patients
+        pr = log(pr); % log likelihood of each patients
+        loglikelihood = sum(pr); % loglikelihood of al
+        disp(['SE: ',num2str(s.se(2)),' p: ',num2str(s.p(2)),' Logl: ',num2str(loglikelihood)]);
+        
         
         pvalue = [s.p];
         pval = pvalue(2); % the p-value corresponding to gEUD
@@ -424,10 +435,21 @@ for i=1:length(toxicities)
        
         
         % regression using exact EUD
-        [b,dev,s]=glmfit(d05s,[ptcomp pttotal],'binomial','link','logit');
+        [b,~,s]=glmfit(d05s,[ptcomp pttotal],'binomial','link','logit');
         %CGobj.mLogisticRegressionMat(k).b=b;
         %            CGobj.mLogisticRegressionMat(k).dev=dev;
         %            CGobj.mLogisticRegressionMat(k).stats=s;
+       disp('D5cc model coefficients')
+        disp(['beta: ',num2str(b(2))])
+        disp(['95% CI: ',num2str(b(2) + 0.9945*[-s.se(2) s.se(2)])]);
+        
+        pr = exp(b(1)+b(2)*d05s);
+        pr = pr./(1+pr); % logistic probability
+        pr(~logical(ptcomp)) = 1-pr(~logical(ptcomp)); % non-complication patients
+        pr = log(pr); % log likelihood of each patients
+        loglikelihood = sum(pr); % loglikelihood of al
+        disp(['SE: ',num2str(s.se(2)),' p: ',num2str(s.p(2)),' Logl: ',num2str(loglikelihood)]);
+        
         
         pvalue = [s.p];
         pval = pvalue(2); % the p-value corresponding to gEUD
@@ -638,6 +660,20 @@ for i=1:length(toxicities)
         % regression using exact EUD
         [b,~,s]=glmfit(d35s,[ptcomp pttotal],'binomial','link','logit');
         
+        disp('D3.5cc model coefficients')
+        disp(['beta: ',num2str(b(2))])
+        disp(['95% CI: ',num2str(b(2) + 0.9945*[-s.se(2) s.se(2)])]);
+                 
+        pr = exp(b(1)+b(2)*d35s);
+        pr = pr./(1+pr); % logistic probability
+        pr(~logical(ptcomp)) = 1-pr(~logical(ptcomp)); % non-complication patients
+        pr = log(pr); % log likelihood of each patients
+        loglikelihood = sum(pr); % loglikelihood of al
+        
+        
+        disp(['SE: ',num2str(s.se(2)),' p: ',num2str(s.p(2)),' Logl: ',num2str(loglikelihood)]);
+
+                        
         pvalue = [s.p];
         pval = pvalue(2); % the p-value corresponding to gEUD
         

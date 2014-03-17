@@ -19,7 +19,6 @@ disp('**** END Flags ****');
 disp(sprintf('\n'));
 
 fig_loc = 'Z:/elw/MATLAB/nfz_analy/slides/figures/latest/';
-
 %structures = {'ILUNG' 'ESOPHAGUS' 'HEART' 'LUNGS' 'NFZ' 'PBT'};
 structures = {'LUNGS'};
 %structures = {'PTV' 'GTV'};
@@ -110,16 +109,20 @@ for i=1:length(toxicities)
         set(gcf,'Position',ss_four2three);
         
         x_range = 1:length(sorted_beds);
-        h_cens=plot(x_range(~logical(sorted_ptcomp)),sorted_beds(~logical(sorted_ptcomp)),'b+','MarkerSize',8,'MarkerFaceColor','b');
+         h_cens=plot(x_range(~logical(sorted_ptcomp)),sorted_beds(~logical(sorted_ptcomp)),'b+','LineWidth',2,'MarkerSize',12);%'MarkerSize',8,'MarkerFaceColor','b');
         hold on;
-        h_comp=plot(x_range(logical(sorted_ptcomp)),sorted_beds(logical(sorted_ptcomp)),'r+','MarkerSize',8,'MarkerFaceColor','r');
+        h_comp=plot(x_range(logical(sorted_ptcomp)),sorted_beds(logical(sorted_ptcomp)),'r+','LineWidth',2,'MarkerSize',12);%,'MarkerFaceColor','r');
         set(gca,'FontSize',20);
         xlabel('BED Rank (\#)','FontSize',22,'interpreter','latex');
         ylabel('BED ($\alpha/\beta = 10$Gy)','FontSize',22,'interpreter','latex');
-               
-        lgnd = legend([h_comp h_cens], [toxicities{i},'~$\geq 2$'],[toxicities{i},'~$< 2$'],'Location','NorthWest')
+        ylim([30 190]);
+        lgnd = legend([h_comp h_cens],...
+            [toxicities{i},'~$\geq 2$, Med. BED: ',num2str(median(rx_beds(logical(ptcomp))),3)],...
+            [toxicities{i},'~$< 2$, Med. BED: ',num2str(median(rx_beds(~logical(ptcomp))),3)],'Location','NorthWest')
         set(lgnd,'FontSize',22);
         set(lgnd,'interpreter','latex');
+       
+                cur_fig_ctr = cur_fig_ctr+1;
         if do_print,
             set(cur_fig,'Color','w');
             export_fig(cur_fig,...
