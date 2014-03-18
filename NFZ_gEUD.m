@@ -4,6 +4,7 @@ tic;close all;
 %% TMP
 do_special_tox=false;
 
+do_lbed_exclude = true;
 
 screen_size=get(0,'ScreenSize');
 ss_four2three = [0 0 screen_size(3)/2 (screen_size(4)/2)*(4/3)];
@@ -11,15 +12,17 @@ do_print=true;
 
 fig_loc = 'Z:/elw/MATLAB/nfz_analy/slides/figures/latest/';
 
-%structures = {'ILUNG' 'ESOPHAGUS' 'HEART' 'NFZ' 'PBT' 'LUNGS'};
-%str_colors = {'k' 'm' 'b' 'r' 'g' 'c'};
+structures = {'ILUNG' 'ESOPHAGUS' 'HEART' 'NFZ' 'PBT' 'LUNGS'};
+str_colors = {'k' 'm' 'b' 'r' 'g' 'c'};
 
-structures = {'ESOPHAGUS'};
-str_colors = {'k'};
 
-%toxicities = {'pultox'};
+
+%structures = {'ESOPHAGUS'};
+%str_colors = {'k'};
+
+toxicities = {'pultox'};
 %toxicities = {'rp','pultox','esotox'};
-toxicities = {'esotox'};
+%toxicities = {'esotox'};
 
 comp_rate = 0.2;
 
@@ -27,8 +30,8 @@ fp = 'Z:\elw\MATLAB\nfz_analy\meta_data\';
 
 % a2b = {'10'};
 % cur_a2b = 10;
-a2b = {'10'};
-cur_a2b = 10;
+a2b = {'3'};
+cur_a2b = 3;
 
 for i=1:length(toxicities)
     
@@ -60,22 +63,37 @@ for i=1:length(toxicities)
         
         fprintf('\n');
         
+        if do_lbed_exclude,
+            
+        fig_basename = [fig_loc,'nfz_',...
+            structures{j},'_lbed_',...
+            toxicities{i},'_a2b',...
+            a2b{1}];
+            
+        else
         fig_basename = [fig_loc,'nfz_',...
             structures{j},'_',...
             toxicities{i},'_a2b',...
             a2b{1}];
-        
+        end
         
         %% load data
         if ~do_special_tox,
-            fn = ['NFZ_',structures{j},'_',toxicities{i},'_a2b',a2b{1},'_data.mat'];
+            if do_lbed_exclude,
+                fn = ['NFZ_',structures{j},'_',toxicities{i},'_a2b',a2b{1},'_lbed_data.mat'];
+            else
+                fn = ['NFZ_',structures{j},'_',toxicities{i},'_a2b',a2b{1},'_data.mat'];
+            end
         else
             fn = ['NFZ_',structures{j},'_',toxicities{i},'_a2b',a2b{1},'_geq3_data.mat'];
         end
+        
+        
         disp(['Loading: ',fn,'...']);
         
         load(strcat(fp,fn),'CGobj_org');
         CGobj = CGobj_org;
+        clear CGobj_org;
         LymanN = log10(CGobj.mLymanN);
         CGobj.mLymanN = LymanN;
         
@@ -95,6 +113,9 @@ for i=1:length(toxicities)
         cur_fig=figure(cur_fig_ctr+200);
         set(gcf,'Position',ss_four2three);
         %title(['Logistic Regression Mean-Dose response',10,tox_titles{i}],'FontSize',18);
+        
+                %CGobj = CGobj.fLogisticRegressionGridExact_EUD();
+        
         [loga,pval,~] = CGobj.fLogisticRegressionGridRespondingCurveExactFig_a_EUD(0,'k',1);
         
         set(gca,'xminortick','on','yminortick','on');
@@ -317,111 +338,111 @@ for i=1:length(toxicities)
             disp(['Saving ',fig_basename,'_lr_dmax.pdf']);
         end
         
-        %% rate vs dmax
-        rates = 0:0.01:.3;
-        
-          rate_vs_dmax = inf(length(rates),1);
-        rate_vs_dmax_hi = inf(length(rates),1);
-        rate_vs_dmax_lo = inf(length(rates),1);
-        
-        rate_vs_phys_dmax = inf(length(rates),3);
-        rate_vs_phys_dmax_hi = inf(length(rates),3);
-        rate_vs_phys_dmax_lo = inf(length(rates),3);
-        
-        for l=1:length(rates)
-            rate_vs_dmax(l) = interp1(rpb,doses,rates(l));
-            rate_vs_dmax_hi(l) = interp1(rpb-rplo,doses,rates(l));
-            rate_vs_dmax_lo(l) = interp1(rpb+rphi,doses,rates(l));
-            
-            if ~isnan(rate_vs_dmax(l)) && ~isinf(cur_a2b),
-            rate_vs_phys_dmax(l,1) = max(roots([1 cur_a2b*3 -cur_a2b*3*rate_vs_dmax(l)]));
-            rate_vs_phys_dmax(l,2) =  max(roots([1 cur_a2b*4 -cur_a2b*4*rate_vs_dmax(l)]));
-            rate_vs_phys_dmax(l,3) =  max(roots([1 cur_a2b*5 -cur_a2b*5*rate_vs_dmax(l)]));
-            end
-            
-            if ~isnan(rate_vs_dmax_hi(l)) && ~isinf(cur_a2b),
-            rate_vs_phys_dmax_hi(l,1) = max(roots([1 cur_a2b*3 -cur_a2b*3*rate_vs_dmax_hi(l)]));
-            rate_vs_phys_dmax_hi(l,2) =  max(roots([1 cur_a2b*4 -cur_a2b*4*rate_vs_dmax_hi(l)]));
-            rate_vs_phys_dmax_hi(l,3) =  max(roots([1 cur_a2b*5 -cur_a2b*5*rate_vs_dmax_hi(l)]));
-            end
-            
-            if ~isnan(rate_vs_dmax_lo(l)) && ~isinf(cur_a2b),
-            rate_vs_phys_dmax_lo(l,1) = max(roots([1 cur_a2b*3 -cur_a2b*3*rate_vs_dmax_lo(l)]));
-            rate_vs_phys_dmax_lo(l,2) =  max(roots([1 cur_a2b*4 -cur_a2b*4*rate_vs_dmax_lo(l)]));
-            rate_vs_phys_dmax_lo(l,3) =  max(roots([1 cur_a2b*5 -cur_a2b*5*rate_vs_dmax_lo(l)]));
-            end
-            
-        end
-        
-        cur_fig=figure(cur_fig_ctr+450);
-        set(gcf,'Position',ss_four2three);
-        hold on;
-        h_dmax(1)=plot(rates,rate_vs_dmax,'LineWidth',2);
-        h_dmax(2)=plot(rates,rate_vs_dmax_hi,'--');
-        plot(rates,rate_vs_dmax_lo,'--');
-        grid on;
-        set(gca,'GridLineStyle','--')
-        set(gca,'xminortick','on','yminortick','on');
-        set(gca,'box','on');
-        set(gca,'FontSize',18);
-        ylabel(['D_{\rm{max}} Gy_{',a2b{1},'}'],'FontSize',20);
-        xlabel('Complication Rate (%)','FontSize',20);
-        [~,ten_pct_ind] = min(abs(rates-0.1));
-        [~,fftn_pct_ind] = min(abs(rates-0.15));
-        [~,twnty_pct_ind] = min(abs(rates-0.2));
-        
-        text(0.05,0.9,['10% Comp. rate -> ',...
-            num2str(rate_vs_dmax(ten_pct_ind),'%3.1f'),' Gy_{',num2str(a2b{1}),'} [',...
-            num2str(rate_vs_dmax_lo(ten_pct_ind),'%3.1f'),' - ',...
-            num2str(rate_vs_dmax_hi(ten_pct_ind),'%3.1f'),']',10,...
-            '15% Comp. rate -> ',...
-            num2str(rate_vs_dmax(fftn_pct_ind),'%3.1f'),' Gy_{',num2str(a2b{1}),'} [',...
-            num2str(rate_vs_dmax_lo(fftn_pct_ind),'%3.1f'),' - ',...
-            num2str(rate_vs_dmax_hi(fftn_pct_ind),'%3.1f'),']',10,...
-            '20% Comp. rate -> ',...
-            num2str(rate_vs_dmax(twnty_pct_ind),'%3.1f'),' Gy_{',num2str(a2b{1}),'} [',...
-            num2str(rate_vs_dmax_lo(twnty_pct_ind),'%3.1f'),' - ',...
-            num2str(rate_vs_dmax_hi(twnty_pct_ind),'%3.1f'),']'],...
-            'units','normalized','FontSize',18,'BackgroundColor','w');
-        
-        if do_print,
-            set(cur_fig,'Color','w');
-            export_fig(cur_fig,...
-                [fig_basename,'_rate_vs_bed_dmax'],'-pdf');
-            disp(['Saving ',fig_basename,'_rate_vs_bed_dmax.pdf']);
-        end
-        
-        
-        %% rate vs dmax physical doses
-         cur_fig=figure(cur_fig_ctr+4500);
-        set(gcf,'Position',ss_four2three);
-        hold on;
-        h_dmax_nfx3=plot(rates,rate_vs_phys_dmax(:,1),'LineWidth',2);
-        plot(rates,rate_vs_phys_dmax_hi(:,1),'--');
-        plot(rates,rate_vs_phys_dmax_lo(:,1),'--');
-        h_dmax_nfx4=plot(rates,rate_vs_phys_dmax(:,2),'g','LineWidth',2);
-        plot(rates,rate_vs_phys_dmax_hi(:,2),'g--');
-        plot(rates,rate_vs_phys_dmax_lo(:,2),'g--');
-        h_dmax_nfx5=plot(rates,rate_vs_phys_dmax(:,3),'r','LineWidth',2);
-        plot(rates,rate_vs_phys_dmax_hi(:,3),'r--');
-        plot(rates,rate_vs_phys_dmax_lo(:,3),'r--');
-        grid on;
-        legend([h_dmax_nfx3 h_dmax_nfx4 h_dmax_nfx5],...
-            {'3 Fx','4 Fx','5 Fx'},'FontSize',18);
-            
-        set(gca,'GridLineStyle','--')
-        set(gca,'xminortick','on','yminortick','on');
-        set(gca,'box','on');
-        set(gca,'FontSize',18);
-        ylabel(['D_{\rm{max}} Gy_{PHYS}'],'FontSize',20);
-        xlabel('Complication Rate (%)','FontSize',20);
-
-        if do_print,
-            set(cur_fig,'Color','w');
-            export_fig(cur_fig,...
-                [fig_basename,'_rate_vs_phys_dmax'],'-pdf');
-            disp(['Saving ',fig_basename,'_rate_vs_phys_dmax.pdf']);
-        end
+%         %% rate vs dmax
+%         rates = 0:0.01:.3;
+%         
+%           rate_vs_dmax = inf(length(rates),1);
+%         rate_vs_dmax_hi = inf(length(rates),1);
+%         rate_vs_dmax_lo = inf(length(rates),1);
+%         
+%         rate_vs_phys_dmax = inf(length(rates),3);
+%         rate_vs_phys_dmax_hi = inf(length(rates),3);
+%         rate_vs_phys_dmax_lo = inf(length(rates),3);
+%         
+%         for l=1:length(rates)
+%             rate_vs_dmax(l) = interp1(rpb,doses,rates(l));
+%             rate_vs_dmax_hi(l) = interp1(rpb-rplo,doses,rates(l));
+%             rate_vs_dmax_lo(l) = interp1(rpb+rphi,doses,rates(l));
+%             
+%             if ~isnan(rate_vs_dmax(l)) && ~isinf(cur_a2b),
+%             rate_vs_phys_dmax(l,1) = max(roots([1 cur_a2b*3 -cur_a2b*3*rate_vs_dmax(l)]));
+%             rate_vs_phys_dmax(l,2) =  max(roots([1 cur_a2b*4 -cur_a2b*4*rate_vs_dmax(l)]));
+%             rate_vs_phys_dmax(l,3) =  max(roots([1 cur_a2b*5 -cur_a2b*5*rate_vs_dmax(l)]));
+%             end
+%             
+%             if ~isnan(rate_vs_dmax_hi(l)) && ~isinf(cur_a2b),
+%             rate_vs_phys_dmax_hi(l,1) = max(roots([1 cur_a2b*3 -cur_a2b*3*rate_vs_dmax_hi(l)]));
+%             rate_vs_phys_dmax_hi(l,2) =  max(roots([1 cur_a2b*4 -cur_a2b*4*rate_vs_dmax_hi(l)]));
+%             rate_vs_phys_dmax_hi(l,3) =  max(roots([1 cur_a2b*5 -cur_a2b*5*rate_vs_dmax_hi(l)]));
+%             end
+%             
+%             if ~isnan(rate_vs_dmax_lo(l)) && ~isinf(cur_a2b),
+%             rate_vs_phys_dmax_lo(l,1) = max(roots([1 cur_a2b*3 -cur_a2b*3*rate_vs_dmax_lo(l)]));
+%             rate_vs_phys_dmax_lo(l,2) =  max(roots([1 cur_a2b*4 -cur_a2b*4*rate_vs_dmax_lo(l)]));
+%             rate_vs_phys_dmax_lo(l,3) =  max(roots([1 cur_a2b*5 -cur_a2b*5*rate_vs_dmax_lo(l)]));
+%             end
+%             
+%         end
+%         
+%         cur_fig=figure(cur_fig_ctr+450);
+%         set(gcf,'Position',ss_four2three);
+%         hold on;
+%         h_dmax(1)=plot(rates,rate_vs_dmax,'LineWidth',2);
+%         h_dmax(2)=plot(rates,rate_vs_dmax_hi,'--');
+%         plot(rates,rate_vs_dmax_lo,'--');
+%         grid on;
+%         set(gca,'GridLineStyle','--')
+%         set(gca,'xminortick','on','yminortick','on');
+%         set(gca,'box','on');
+%         set(gca,'FontSize',18);
+%         ylabel(['D_{\rm{max}} Gy_{',a2b{1},'}'],'FontSize',20);
+%         xlabel('Complication Rate (%)','FontSize',20);
+%         [~,ten_pct_ind] = min(abs(rates-0.1));
+%         [~,fftn_pct_ind] = min(abs(rates-0.15));
+%         [~,twnty_pct_ind] = min(abs(rates-0.2));
+%         
+%         text(0.05,0.9,['10% Comp. rate -> ',...
+%             num2str(rate_vs_dmax(ten_pct_ind),'%3.1f'),' Gy_{',num2str(a2b{1}),'} [',...
+%             num2str(rate_vs_dmax_lo(ten_pct_ind),'%3.1f'),' - ',...
+%             num2str(rate_vs_dmax_hi(ten_pct_ind),'%3.1f'),']',10,...
+%             '15% Comp. rate -> ',...
+%             num2str(rate_vs_dmax(fftn_pct_ind),'%3.1f'),' Gy_{',num2str(a2b{1}),'} [',...
+%             num2str(rate_vs_dmax_lo(fftn_pct_ind),'%3.1f'),' - ',...
+%             num2str(rate_vs_dmax_hi(fftn_pct_ind),'%3.1f'),']',10,...
+%             '20% Comp. rate -> ',...
+%             num2str(rate_vs_dmax(twnty_pct_ind),'%3.1f'),' Gy_{',num2str(a2b{1}),'} [',...
+%             num2str(rate_vs_dmax_lo(twnty_pct_ind),'%3.1f'),' - ',...
+%             num2str(rate_vs_dmax_hi(twnty_pct_ind),'%3.1f'),']'],...
+%             'units','normalized','FontSize',18,'BackgroundColor','w');
+%         
+%         if do_print,
+%             set(cur_fig,'Color','w');
+%             export_fig(cur_fig,...
+%                 [fig_basename,'_rate_vs_bed_dmax'],'-pdf');
+%             disp(['Saving ',fig_basename,'_rate_vs_bed_dmax.pdf']);
+%         end
+%         
+%         
+%         %% rate vs dmax physical doses
+%          cur_fig=figure(cur_fig_ctr+4500);
+%         set(gcf,'Position',ss_four2three);
+%         hold on;
+%         h_dmax_nfx3=plot(rates,rate_vs_phys_dmax(:,1),'LineWidth',2);
+%         plot(rates,rate_vs_phys_dmax_hi(:,1),'--');
+%         plot(rates,rate_vs_phys_dmax_lo(:,1),'--');
+%         h_dmax_nfx4=plot(rates,rate_vs_phys_dmax(:,2),'g','LineWidth',2);
+%         plot(rates,rate_vs_phys_dmax_hi(:,2),'g--');
+%         plot(rates,rate_vs_phys_dmax_lo(:,2),'g--');
+%         h_dmax_nfx5=plot(rates,rate_vs_phys_dmax(:,3),'r','LineWidth',2);
+%         plot(rates,rate_vs_phys_dmax_hi(:,3),'r--');
+%         plot(rates,rate_vs_phys_dmax_lo(:,3),'r--');
+%         grid on;
+%         legend([h_dmax_nfx3 h_dmax_nfx4 h_dmax_nfx5],...
+%             {'3 Fx','4 Fx','5 Fx'},'FontSize',18);
+%             
+%         set(gca,'GridLineStyle','--')
+%         set(gca,'xminortick','on','yminortick','on');
+%         set(gca,'box','on');
+%         set(gca,'FontSize',18);
+%         ylabel(['D_{\rm{max}} Gy_{PHYS}'],'FontSize',20);
+%         xlabel('Complication Rate (%)','FontSize',20);
+% 
+%         if do_print,
+%             set(cur_fig,'Color','w');
+%             export_fig(cur_fig,...
+%                 [fig_basename,'_rate_vs_phys_dmax'],'-pdf');
+%             disp(['Saving ',fig_basename,'_rate_vs_phys_dmax.pdf']);
+%         end
         
         %% D_05
         
@@ -547,110 +568,110 @@ for i=1:length(toxicities)
             disp(['Saving ',fig_basename,'_lr_d05.pdf']);
         end
         
-        %% rate vs d05
-          rate_vs_d05 = inf(length(rates),1);
-        rate_vs_d05_hi = inf(length(rates),1);
-        rate_vs_d05_lo = inf(length(rates),1);
-        
-        rate_vs_phys_d05 = inf(length(rates),3);
-        rate_vs_phys_d05_hi = inf(length(rates),3);
-        rate_vs_phys_d05_lo = inf(length(rates),3);
-        
-        for l=1:length(rates)
-            rate_vs_d05(l) = interp1(rpb,doses,rates(l));
-            rate_vs_d05_hi(l) = interp1(rpb-rplo,doses,rates(l));
-            rate_vs_d05_lo(l) = interp1(rpb+rphi,doses,rates(l));
-            
-            if ~isinf(cur_a2b)
-                if ~isnan(rate_vs_d05(l)),
-                    rate_vs_phys_d05(l,1) = max(roots([1 cur_a2b*3 -cur_a2b*3*rate_vs_d05(l)]));
-                    rate_vs_phys_d05(l,2) =  max(roots([1 cur_a2b*4 -cur_a2b*4*rate_vs_d05(l)]));
-                    rate_vs_phys_d05(l,3) =  max(roots([1 cur_a2b*5 -cur_a2b*5*rate_vs_d05(l)]));
-                end
-                
-                if ~isnan(rate_vs_d05_hi(l)),
-                    rate_vs_phys_d05_hi(l,1) = max(roots([1 cur_a2b*3 -cur_a2b*3*rate_vs_d05_hi(l)]));
-                    rate_vs_phys_d05_hi(l,2) =  max(roots([1 cur_a2b*4 -cur_a2b*4*rate_vs_d05_hi(l)]));
-                    rate_vs_phys_d05_hi(l,3) =  max(roots([1 cur_a2b*5 -cur_a2b*5*rate_vs_d05_hi(l)]));
-                end
-                
-                if ~isnan(rate_vs_d05_lo(l)),
-                    rate_vs_phys_d05_lo(l,1) = max(roots([1 cur_a2b*3 -cur_a2b*3*rate_vs_d05_lo(l)]));
-                    rate_vs_phys_d05_lo(l,2) =  max(roots([1 cur_a2b*4 -cur_a2b*4*rate_vs_d05_lo(l)]));
-                    rate_vs_phys_d05_lo(l,3) =  max(roots([1 cur_a2b*5 -cur_a2b*5*rate_vs_d05_lo(l)]));
-                end
-            end
-        end
-        
-         cur_fig=figure(cur_fig_ctr+550);
-        set(gcf,'Position',ss_four2three);
-        hold on;
-        h_d05(1)=plot(rates,rate_vs_d05,'LineWidth',2);
-        h_d05(2)=plot(rates,rate_vs_d05_hi,'--');
-        plot(rates,rate_vs_d05_lo,'--');
-        grid on;
-        set(gca,'GridLineStyle','--')
-        set(gca,'xminortick','on','yminortick','on');
-        set(gca,'box','on');
-        set(gca,'FontSize',18);
-        ylabel(['D_{5.0\rm{cc}} Gy_{',a2b{1},'}'],'FontSize',20);
-        xlabel('Complication Rate (%)','FontSize',20);
-        [~,ten_pct_ind] = min(abs(rates-0.1));
-        [~,fftn_pct_ind] = min(abs(rates-0.15));
-        [~,twnty_pct_ind] = min(abs(rates-0.2));
-        
-        text(0.05,0.9,['10% Comp. rate -> ',...
-            num2str(rate_vs_d05(ten_pct_ind),'%3.1f'),' Gy_{',num2str(a2b{1}),'} [',...
-            num2str(rate_vs_d05_lo(ten_pct_ind),'%3.1f'),' - ',...
-            num2str(rate_vs_d05_hi(ten_pct_ind),'%3.1f'),']',10,...
-            '15% Comp. rate -> ',...
-            num2str(rate_vs_d05(fftn_pct_ind),'%3.1f'),' Gy_{',num2str(a2b{1}),'} [',...
-            num2str(rate_vs_d05_lo(fftn_pct_ind),'%3.1f'),' - ',...
-            num2str(rate_vs_d05_hi(fftn_pct_ind),'%3.1f'),']',10,...
-            '20% Comp. rate -> ',...
-            num2str(rate_vs_d05(twnty_pct_ind),'%3.1f'),' Gy_{',num2str(a2b{1}),'} [',...
-            num2str(rate_vs_d05_lo(twnty_pct_ind),'%3.1f'),' - ',...
-            num2str(rate_vs_d05_hi(twnty_pct_ind),'%3.1f'),']'],...
-            'units','normalized','FontSize',18,'BackgroundColor','w');
-        
-        if do_print,
-            set(cur_fig,'Color','w');
-            export_fig(cur_fig,...
-                [fig_basename,'_rate_vs_bed_d05'],'-pdf');
-            disp(['Saving ',fig_basename,'_rate_vs_bed_d05.pdf']);
-        end
-        
-        %% rate vs d05 physical doses
-         cur_fig=figure(cur_fig_ctr+5500);
-        set(gcf,'Position',ss_four2three);
-        hold on;
-        h_d05_nfx3=plot(rates,rate_vs_phys_d05(:,1),'LineWidth',2);
-        plot(rates,rate_vs_phys_d05_hi(:,1),'--');
-        plot(rates,rate_vs_phys_d05_lo(:,1),'--');
-        h_d05_nfx4=plot(rates,rate_vs_phys_d05(:,2),'g','LineWidth',2);
-        plot(rates,rate_vs_phys_d05_hi(:,2),'g--');
-        plot(rates,rate_vs_phys_d05_lo(:,2),'g--');
-        h_d05_nfx5=plot(rates,rate_vs_phys_d05(:,3),'r','LineWidth',2);
-        plot(rates,rate_vs_phys_d05_hi(:,3),'r--');
-        plot(rates,rate_vs_phys_d05_lo(:,3),'r--');
-        grid on;
-        legend([h_d05_nfx3 h_d05_nfx4 h_d05_nfx5],...
-            {'3 Fx','4 Fx','5 Fx'},'FontSize',18);
-            
-        set(gca,'GridLineStyle','--')
-        set(gca,'xminortick','on','yminortick','on');
-        set(gca,'box','on');
-        set(gca,'FontSize',18);
-        ylabel(['D_{5.0\rm{cc}} Gy_{PHYS}'],'FontSize',20);
-        xlabel('Complication Rate (%)','FontSize',20);
-
-        if do_print,
-            set(cur_fig,'Color','w');
-            export_fig(cur_fig,...
-                [fig_basename,'_rate_vs_phys_d05'],'-pdf');
-            disp(['Saving ',fig_basename,'_rate_vs_phys_d05.pdf']);
-        end
-        
+%         %% rate vs d05
+%           rate_vs_d05 = inf(length(rates),1);
+%         rate_vs_d05_hi = inf(length(rates),1);
+%         rate_vs_d05_lo = inf(length(rates),1);
+%         
+%         rate_vs_phys_d05 = inf(length(rates),3);
+%         rate_vs_phys_d05_hi = inf(length(rates),3);
+%         rate_vs_phys_d05_lo = inf(length(rates),3);
+%         
+%         for l=1:length(rates)
+%             rate_vs_d05(l) = interp1(rpb,doses,rates(l));
+%             rate_vs_d05_hi(l) = interp1(rpb-rplo,doses,rates(l));
+%             rate_vs_d05_lo(l) = interp1(rpb+rphi,doses,rates(l));
+%             
+%             if ~isinf(cur_a2b)
+%                 if ~isnan(rate_vs_d05(l)),
+%                     rate_vs_phys_d05(l,1) = max(roots([1 cur_a2b*3 -cur_a2b*3*rate_vs_d05(l)]));
+%                     rate_vs_phys_d05(l,2) =  max(roots([1 cur_a2b*4 -cur_a2b*4*rate_vs_d05(l)]));
+%                     rate_vs_phys_d05(l,3) =  max(roots([1 cur_a2b*5 -cur_a2b*5*rate_vs_d05(l)]));
+%                 end
+%                 
+%                 if ~isnan(rate_vs_d05_hi(l)),
+%                     rate_vs_phys_d05_hi(l,1) = max(roots([1 cur_a2b*3 -cur_a2b*3*rate_vs_d05_hi(l)]));
+%                     rate_vs_phys_d05_hi(l,2) =  max(roots([1 cur_a2b*4 -cur_a2b*4*rate_vs_d05_hi(l)]));
+%                     rate_vs_phys_d05_hi(l,3) =  max(roots([1 cur_a2b*5 -cur_a2b*5*rate_vs_d05_hi(l)]));
+%                 end
+%                 
+%                 if ~isnan(rate_vs_d05_lo(l)),
+%                     rate_vs_phys_d05_lo(l,1) = max(roots([1 cur_a2b*3 -cur_a2b*3*rate_vs_d05_lo(l)]));
+%                     rate_vs_phys_d05_lo(l,2) =  max(roots([1 cur_a2b*4 -cur_a2b*4*rate_vs_d05_lo(l)]));
+%                     rate_vs_phys_d05_lo(l,3) =  max(roots([1 cur_a2b*5 -cur_a2b*5*rate_vs_d05_lo(l)]));
+%                 end
+%             end
+%         end
+%         
+%          cur_fig=figure(cur_fig_ctr+550);
+%         set(gcf,'Position',ss_four2three);
+%         hold on;
+%         h_d05(1)=plot(rates,rate_vs_d05,'LineWidth',2);
+%         h_d05(2)=plot(rates,rate_vs_d05_hi,'--');
+%         plot(rates,rate_vs_d05_lo,'--');
+%         grid on;
+%         set(gca,'GridLineStyle','--')
+%         set(gca,'xminortick','on','yminortick','on');
+%         set(gca,'box','on');
+%         set(gca,'FontSize',18);
+%         ylabel(['D_{5.0\rm{cc}} Gy_{',a2b{1},'}'],'FontSize',20);
+%         xlabel('Complication Rate (%)','FontSize',20);
+%         [~,ten_pct_ind] = min(abs(rates-0.1));
+%         [~,fftn_pct_ind] = min(abs(rates-0.15));
+%         [~,twnty_pct_ind] = min(abs(rates-0.2));
+%         
+%         text(0.05,0.9,['10% Comp. rate -> ',...
+%             num2str(rate_vs_d05(ten_pct_ind),'%3.1f'),' Gy_{',num2str(a2b{1}),'} [',...
+%             num2str(rate_vs_d05_lo(ten_pct_ind),'%3.1f'),' - ',...
+%             num2str(rate_vs_d05_hi(ten_pct_ind),'%3.1f'),']',10,...
+%             '15% Comp. rate -> ',...
+%             num2str(rate_vs_d05(fftn_pct_ind),'%3.1f'),' Gy_{',num2str(a2b{1}),'} [',...
+%             num2str(rate_vs_d05_lo(fftn_pct_ind),'%3.1f'),' - ',...
+%             num2str(rate_vs_d05_hi(fftn_pct_ind),'%3.1f'),']',10,...
+%             '20% Comp. rate -> ',...
+%             num2str(rate_vs_d05(twnty_pct_ind),'%3.1f'),' Gy_{',num2str(a2b{1}),'} [',...
+%             num2str(rate_vs_d05_lo(twnty_pct_ind),'%3.1f'),' - ',...
+%             num2str(rate_vs_d05_hi(twnty_pct_ind),'%3.1f'),']'],...
+%             'units','normalized','FontSize',18,'BackgroundColor','w');
+%         
+%         if do_print,
+%             set(cur_fig,'Color','w');
+%             export_fig(cur_fig,...
+%                 [fig_basename,'_rate_vs_bed_d05'],'-pdf');
+%             disp(['Saving ',fig_basename,'_rate_vs_bed_d05.pdf']);
+%         end
+%         
+%         %% rate vs d05 physical doses
+%          cur_fig=figure(cur_fig_ctr+5500);
+%         set(gcf,'Position',ss_four2three);
+%         hold on;
+%         h_d05_nfx3=plot(rates,rate_vs_phys_d05(:,1),'LineWidth',2);
+%         plot(rates,rate_vs_phys_d05_hi(:,1),'--');
+%         plot(rates,rate_vs_phys_d05_lo(:,1),'--');
+%         h_d05_nfx4=plot(rates,rate_vs_phys_d05(:,2),'g','LineWidth',2);
+%         plot(rates,rate_vs_phys_d05_hi(:,2),'g--');
+%         plot(rates,rate_vs_phys_d05_lo(:,2),'g--');
+%         h_d05_nfx5=plot(rates,rate_vs_phys_d05(:,3),'r','LineWidth',2);
+%         plot(rates,rate_vs_phys_d05_hi(:,3),'r--');
+%         plot(rates,rate_vs_phys_d05_lo(:,3),'r--');
+%         grid on;
+%         legend([h_d05_nfx3 h_d05_nfx4 h_d05_nfx5],...
+%             {'3 Fx','4 Fx','5 Fx'},'FontSize',18);
+%             
+%         set(gca,'GridLineStyle','--')
+%         set(gca,'xminortick','on','yminortick','on');
+%         set(gca,'box','on');
+%         set(gca,'FontSize',18);
+%         ylabel(['D_{5.0\rm{cc}} Gy_{PHYS}'],'FontSize',20);
+%         xlabel('Complication Rate (%)','FontSize',20);
+% 
+%         if do_print,
+%             set(cur_fig,'Color','w');
+%             export_fig(cur_fig,...
+%                 [fig_basename,'_rate_vs_phys_d05'],'-pdf');
+%             disp(['Saving ',fig_basename,'_rate_vs_phys_d05.pdf']);
+%         end
+%         
         %% D_35
         
         cur_fig=figure(cur_fig_ctr+600);
@@ -775,111 +796,114 @@ for i=1:length(toxicities)
         end
         
         
-        %% rate vs d35
-         rate_vs_d35 = inf(length(rates),1);
-        rate_vs_d35_hi = inf(length(rates),1);
-        rate_vs_d35_lo = inf(length(rates),1);
+%         %% rate vs d35
+%          rate_vs_d35 = inf(length(rates),1);
+%         rate_vs_d35_hi = inf(length(rates),1);
+%         rate_vs_d35_lo = inf(length(rates),1);
+%         
+%         rate_vs_phys_d35 = inf(length(rates),3);
+%         rate_vs_phys_d35_hi = inf(length(rates),3);
+%         rate_vs_phys_d35_lo = inf(length(rates),3);
+%         
+%         for l=1:length(rates)
+%             rate_vs_d35(l) = interp1(rpb,doses,rates(l));
+%             rate_vs_d35_hi(l) = interp1(rpb-rplo,doses,rates(l));
+%             rate_vs_d35_lo(l) = interp1(rpb+rphi,doses,rates(l));
+%             if ~isinf(cur_a2b),
+%                 if ~isnan(rate_vs_d35(l)),
+%                     rate_vs_phys_d35(l,1) = max(roots([1 cur_a2b*3 -cur_a2b*3*rate_vs_d35(l)]));
+%                     rate_vs_phys_d35(l,2) =  max(roots([1 cur_a2b*4 -cur_a2b*4*rate_vs_d35(l)]));
+%                     rate_vs_phys_d35(l,3) =  max(roots([1 cur_a2b*5 -cur_a2b*5*rate_vs_d35(l)]));
+%                 end
+%                 
+%                 if ~isnan(rate_vs_d35_hi(l)),
+%                     rate_vs_phys_d35_hi(l,1) = max(roots([1 cur_a2b*3 -cur_a2b*3*rate_vs_d35_hi(l)]));
+%                     rate_vs_phys_d35_hi(l,2) =  max(roots([1 cur_a2b*4 -cur_a2b*4*rate_vs_d35_hi(l)]));
+%                     rate_vs_phys_d35_hi(l,3) =  max(roots([1 cur_a2b*5 -cur_a2b*5*rate_vs_d35_hi(l)]));
+%                 end
+%                 
+%                 if ~isnan(rate_vs_d35_lo(l)),
+%                     rate_vs_phys_d35_lo(l,1) = max(roots([1 cur_a2b*3 -cur_a2b*3*rate_vs_d35_lo(l)]));
+%                     rate_vs_phys_d35_lo(l,2) =  max(roots([1 cur_a2b*4 -cur_a2b*4*rate_vs_d35_lo(l)]));
+%                     rate_vs_phys_d35_lo(l,3) =  max(roots([1 cur_a2b*5 -cur_a2b*5*rate_vs_d35_lo(l)]));
+%                 end
+%             end
+%         end
+%         
+%         cur_fig=figure(cur_fig_ctr+650);
+%         set(gcf,'Position',ss_four2three);
+%         hold on;
+%         h_d35(1)=plot(rates,rate_vs_d35,'LineWidth',2);
+%         h_d35(2)=plot(rates,rate_vs_d35_hi,'--');
+%         plot(rates,rate_vs_d35_lo,'--');
+%         grid on;
+%         set(gca,'GridLineStyle','--')
+%         set(gca,'xminortick','on','yminortick','on');
+%         set(gca,'box','on');
+%         set(gca,'FontSize',18);
+%         ylabel(['D_{3.5\rm{cc}} Gy_{',a2b{1},'}'],'FontSize',20);
+%         xlabel('Complication Rate (%)','FontSize',20);
+%         [~,ten_pct_ind] = min(abs(rates-0.1));
+%         [~,fftn_pct_ind] = min(abs(rates-0.15));
+%         [~,twnty_pct_ind] = min(abs(rates-0.2));
+%         
+%         text(0.05,0.9,['10% Comp. rate -> ',...
+%             num2str(rate_vs_d35(ten_pct_ind),'%3.1f'),' Gy_{',num2str(a2b{1}),'} [',...
+%             num2str(rate_vs_d35_lo(ten_pct_ind),'%3.1f'),' - ',...
+%             num2str(rate_vs_d35_hi(ten_pct_ind),'%3.1f'),']',10,...
+%             '15% Comp. rate -> ',...
+%             num2str(rate_vs_d35(fftn_pct_ind),'%3.1f'),' Gy_{',num2str(a2b{1}),'} [',...
+%             num2str(rate_vs_d35_lo(fftn_pct_ind),'%3.1f'),' - ',...
+%             num2str(rate_vs_d35_hi(fftn_pct_ind),'%3.1f'),']',10,...
+%             '20% Comp. rate -> ',...
+%             num2str(rate_vs_d35(twnty_pct_ind),'%3.1f'),' Gy_{',num2str(a2b{1}),'} [',...
+%             num2str(rate_vs_d35_lo(twnty_pct_ind),'%3.1f'),' - ',...
+%             num2str(rate_vs_d35_hi(twnty_pct_ind),'%3.1f'),']'],...
+%             'units','normalized','FontSize',18,'BackgroundColor','w');
+%         
+%         if do_print,
+%             set(cur_fig,'Color','w');
+%             export_fig(cur_fig,...
+%                 [fig_basename,'_rate_vs_bed_d35'],'-pdf');
+%             disp(['Saving ',fig_basename,'_rate_vs_bed_d35.pdf']);
+%         end
+%         
+%         %% rate vs d35 physical doses
+%          cur_fig=figure(cur_fig_ctr+6500);
+%         set(gcf,'Position',ss_four2three);
+%         hold on;
+%         h_d35_nfx3=plot(rates,rate_vs_phys_d35(:,1),'LineWidth',2);
+%         plot(rates,rate_vs_phys_d35_hi(:,1),'--');
+%         plot(rates,rate_vs_phys_d35_lo(:,1),'--');
+%         h_d35_nfx4=plot(rates,rate_vs_phys_d35(:,2),'g','LineWidth',2);
+%         plot(rates,rate_vs_phys_d35_hi(:,2),'g--');
+%         plot(rates,rate_vs_phys_d35_lo(:,2),'g--');
+%         h_d35_nfx5=plot(rates,rate_vs_phys_d35(:,3),'r','LineWidth',2);
+%         plot(rates,rate_vs_phys_d35_hi(:,3),'r--');
+%         plot(rates,rate_vs_phys_d35_lo(:,3),'r--');
+%         grid on;
+%         legend([h_d35_nfx3 h_d35_nfx4 h_d35_nfx5],...
+%             {'3 Fx','4 Fx','5 Fx'},'FontSize',18);
+% 
+%         ylim([0 30]);
+%         set(gca,'GridLineStyle','--')
+%         set(gca,'xminortick','on','yminortick','on');
+%         set(gca,'box','on');
+%         set(gca,'FontSize',18);
+%         ylabel(['D_{3.5\rm{cc}} Gy_{PHYS}'],'FontSize',20);
+%         xlabel('Complication Rate (%)','FontSize',20);
+% 
+%         if do_print,
+%             set(cur_fig,'Color','w');
+%             export_fig(cur_fig,...
+%                 [fig_basename,'_rate_vs_phys_d35'],'-pdf');
+%             disp(['Saving ',fig_basename,'_rate_vs_phys_d35.pdf']);
+%         end
         
-        rate_vs_phys_d35 = inf(length(rates),3);
-        rate_vs_phys_d35_hi = inf(length(rates),3);
-        rate_vs_phys_d35_lo = inf(length(rates),3);
-        
-        for l=1:length(rates)
-            rate_vs_d35(l) = interp1(rpb,doses,rates(l));
-            rate_vs_d35_hi(l) = interp1(rpb-rplo,doses,rates(l));
-            rate_vs_d35_lo(l) = interp1(rpb+rphi,doses,rates(l));
-            if ~isinf(cur_a2b),
-                if ~isnan(rate_vs_d35(l)),
-                    rate_vs_phys_d35(l,1) = max(roots([1 cur_a2b*3 -cur_a2b*3*rate_vs_d35(l)]));
-                    rate_vs_phys_d35(l,2) =  max(roots([1 cur_a2b*4 -cur_a2b*4*rate_vs_d35(l)]));
-                    rate_vs_phys_d35(l,3) =  max(roots([1 cur_a2b*5 -cur_a2b*5*rate_vs_d35(l)]));
-                end
-                
-                if ~isnan(rate_vs_d35_hi(l)),
-                    rate_vs_phys_d35_hi(l,1) = max(roots([1 cur_a2b*3 -cur_a2b*3*rate_vs_d35_hi(l)]));
-                    rate_vs_phys_d35_hi(l,2) =  max(roots([1 cur_a2b*4 -cur_a2b*4*rate_vs_d35_hi(l)]));
-                    rate_vs_phys_d35_hi(l,3) =  max(roots([1 cur_a2b*5 -cur_a2b*5*rate_vs_d35_hi(l)]));
-                end
-                
-                if ~isnan(rate_vs_d35_lo(l)),
-                    rate_vs_phys_d35_lo(l,1) = max(roots([1 cur_a2b*3 -cur_a2b*3*rate_vs_d35_lo(l)]));
-                    rate_vs_phys_d35_lo(l,2) =  max(roots([1 cur_a2b*4 -cur_a2b*4*rate_vs_d35_lo(l)]));
-                    rate_vs_phys_d35_lo(l,3) =  max(roots([1 cur_a2b*5 -cur_a2b*5*rate_vs_d35_lo(l)]));
-                end
-            end
-        end
-        
-        cur_fig=figure(cur_fig_ctr+650);
-        set(gcf,'Position',ss_four2three);
-        hold on;
-        h_d35(1)=plot(rates,rate_vs_d35,'LineWidth',2);
-        h_d35(2)=plot(rates,rate_vs_d35_hi,'--');
-        plot(rates,rate_vs_d35_lo,'--');
-        grid on;
-        set(gca,'GridLineStyle','--')
-        set(gca,'xminortick','on','yminortick','on');
-        set(gca,'box','on');
-        set(gca,'FontSize',18);
-        ylabel(['D_{3.5\rm{cc}} Gy_{',a2b{1},'}'],'FontSize',20);
-        xlabel('Complication Rate (%)','FontSize',20);
-        [~,ten_pct_ind] = min(abs(rates-0.1));
-        [~,fftn_pct_ind] = min(abs(rates-0.15));
-        [~,twnty_pct_ind] = min(abs(rates-0.2));
-        
-        text(0.05,0.9,['10% Comp. rate -> ',...
-            num2str(rate_vs_d35(ten_pct_ind),'%3.1f'),' Gy_{',num2str(a2b{1}),'} [',...
-            num2str(rate_vs_d35_lo(ten_pct_ind),'%3.1f'),' - ',...
-            num2str(rate_vs_d35_hi(ten_pct_ind),'%3.1f'),']',10,...
-            '15% Comp. rate -> ',...
-            num2str(rate_vs_d35(fftn_pct_ind),'%3.1f'),' Gy_{',num2str(a2b{1}),'} [',...
-            num2str(rate_vs_d35_lo(fftn_pct_ind),'%3.1f'),' - ',...
-            num2str(rate_vs_d35_hi(fftn_pct_ind),'%3.1f'),']',10,...
-            '20% Comp. rate -> ',...
-            num2str(rate_vs_d35(twnty_pct_ind),'%3.1f'),' Gy_{',num2str(a2b{1}),'} [',...
-            num2str(rate_vs_d35_lo(twnty_pct_ind),'%3.1f'),' - ',...
-            num2str(rate_vs_d35_hi(twnty_pct_ind),'%3.1f'),']'],...
-            'units','normalized','FontSize',18,'BackgroundColor','w');
-        
-        if do_print,
-            set(cur_fig,'Color','w');
-            export_fig(cur_fig,...
-                [fig_basename,'_rate_vs_bed_d35'],'-pdf');
-            disp(['Saving ',fig_basename,'_rate_vs_bed_d35.pdf']);
-        end
-        
-        %% rate vs d35 physical doses
-         cur_fig=figure(cur_fig_ctr+6500);
-        set(gcf,'Position',ss_four2three);
-        hold on;
-        h_d35_nfx3=plot(rates,rate_vs_phys_d35(:,1),'LineWidth',2);
-        plot(rates,rate_vs_phys_d35_hi(:,1),'--');
-        plot(rates,rate_vs_phys_d35_lo(:,1),'--');
-        h_d35_nfx4=plot(rates,rate_vs_phys_d35(:,2),'g','LineWidth',2);
-        plot(rates,rate_vs_phys_d35_hi(:,2),'g--');
-        plot(rates,rate_vs_phys_d35_lo(:,2),'g--');
-        h_d35_nfx5=plot(rates,rate_vs_phys_d35(:,3),'r','LineWidth',2);
-        plot(rates,rate_vs_phys_d35_hi(:,3),'r--');
-        plot(rates,rate_vs_phys_d35_lo(:,3),'r--');
-        grid on;
-        legend([h_d35_nfx3 h_d35_nfx4 h_d35_nfx5],...
-            {'3 Fx','4 Fx','5 Fx'},'FontSize',18);
-
-        ylim([0 30]);
-        set(gca,'GridLineStyle','--')
-        set(gca,'xminortick','on','yminortick','on');
-        set(gca,'box','on');
-        set(gca,'FontSize',18);
-        ylabel(['D_{3.5\rm{cc}} Gy_{PHYS}'],'FontSize',20);
-        xlabel('Complication Rate (%)','FontSize',20);
-
-        if do_print,
-            set(cur_fig,'Color','w');
-            export_fig(cur_fig,...
-                [fig_basename,'_rate_vs_phys_d35'],'-pdf');
-            disp(['Saving ',fig_basename,'_rate_vs_phys_d35.pdf']);
-        end
-        
-        
+        clear CGobj;
+        clear d_bins;
+        clear v_bins;
+      %  close all;
     end
     
     %% Print and save
@@ -902,7 +926,12 @@ for i=1:length(toxicities)
     % Logistic regression loglikelihoods
     cur_fig=figure(i+100);
     if isequal(toxicities{i},'pultox')
+        if do_lbed_exclude,
+            disp([]);
+%             ylim([-0.59 -0.574]);
+        else
         ylim([-0.59 -0.574]);
+        end
     end
     
     lgnd_llhds=legend(h_llhds,structures,'Location','Best');

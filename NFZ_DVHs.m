@@ -6,22 +6,25 @@ ss_four2three = [0 0 screen_size(3)/2 screen_size(4)/2];
 do_print = true;
 fig_loc = 'Z:/elw/MATLAB/nfz_analy/slides/figures/latest/';
 
+do_lbed_exclude = true;
 
 mLymanN = -1:0.1:1;
 
-%structures = {'ILUNG' 'ESOPHAGUS' 'HEART' 'NFZ' 'PBT' 'LUNGS'};
+structures = {'ILUNG' 'ESOPHAGUS' 'HEART' 'NFZ' 'PBT' 'LUNGS'};
+%structures = {'LUNGS'};
+
 %structures = {'GTV'}
-structures = {'ESOPHAGUS'}
+%structures = {'ESOPHAGUS'}
 %toxicities = {'rp','pultox','esotox};
 
 %toxicities = {'lclfail'};
-toxicities = {'esotox'};
-%toxicities = {'pultox'};
+%toxicities = {'esotox'};
+toxicities = {'pultox'};
 
 fp = 'Z:\elw\MATLAB\nfz_analy\meta_data\';
 
 %a2b = {'Inf' '3' '10'};
-a2b = {'Inf'};
+a2b = {'3'};
 
 for i=1:length(toxicities)
 
@@ -34,13 +37,22 @@ for i=1:length(toxicities)
     disp(['Counter: ',num2str(cur_fig_ctr)]);
     fprintf('\n');
     
+    if do_lbed_exclude
+        
+     fig_basename = [fig_loc,'nfz_',...
+                        structures{j},'_lbed_',...
+                        toxicities{i},'_a2b',...
+                        a2b{1}];
+    fn = ['NFZ_',structures{j},'_',toxicities{i},'_a2b',a2b{1},'_lbed_data.mat'];
+    else
      fig_basename = [fig_loc,'nfz_',...
                         structures{j},'_',...
                         toxicities{i},'_a2b',...
                         a2b{1}];
-    
+     fn = ['NFZ_',structures{j},'_',toxicities{i},'_a2b',a2b{1},'_data.mat'];
+    end
     %% load data
-    fn = ['NFZ_',structures{j},'_',toxicities{i},'_a2b',a2b{1},'_data.mat'];
+    
     load(strcat(fp,fn),'CGobj_org');
     CGobj = CGobj_org;
     LymanN = log10(CGobj.mLymanN);

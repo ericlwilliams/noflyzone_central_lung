@@ -116,6 +116,7 @@ for i=1:length(toxicities)
         xlabel('BED Rank (\#)','FontSize',22,'interpreter','latex');
         ylabel('BED ($\alpha/\beta = 10$Gy)','FontSize',22,'interpreter','latex');
         ylim([30 190]);
+        xlim([0 126]);
         lgnd = legend([h_comp h_cens],...
             [toxicities{i},'~$\geq 2$, Med. BED: ',num2str(median(rx_beds(logical(ptcomp))),3)],...
             [toxicities{i},'~$< 2$, Med. BED: ',num2str(median(rx_beds(~logical(ptcomp))),3)],'Location','NorthWest')

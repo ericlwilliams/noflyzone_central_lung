@@ -2,13 +2,15 @@ function NFz_Analysis
 tic;
 save_result = true;
 mm_do_print = false;
-%beta2alpha=[1/3];a2b_corr = 'BED';
-% beta2alpha=[1/10];a2b_corr = 'BED';
-beta2alpha=[0];a2b_corr = 'PHYS';
+beta2alpha=[1/3];a2b_corr = 'BED';
+%beta2alpha=[1/10];a2b_corr = 'BED';
+%beta2alpha=[0];a2b_corr = 'PHYS';
 
 tox_grade = 2;% toxicity defined as >= tox_grade
 
 do_tcp_exclude = false;
+
+do_lbed_exclude = true;
 
 dosestep=1;
 volstep=10; % volume step in cc
@@ -19,32 +21,40 @@ if do_tcp_exclude
 else
     filepathname='Z:/elw/MATLAB/original_data/NFZ/Central_tumor_dataset_4-22-13';
 end
+
+if do_lbed_exclude
+    filepathname='Z:/elw/MATLAB/original_data/NFZ/Central_tumor_dataset_lbed_4-22-13';
+else
+    filepathname='Z:/elw/MATLAB/original_data/NFZ/Central_tumor_dataset_4-22-13';
+end
+
+ %full   
 %structures = {'CLUNG' 'ILUNG' 'ESOPHAGUS' 'HEART'...
-                %'NFZ' 'PBT' 'TRACHEA' 'LUNGS'};
+%                'NFZ' 'PBT' 'TRACHEA' 'LUNGS'};
                 
-% structures = {'ILUNG' 'ESOPHAGUS' 'HEART'...
-%                 'NFZ' 'PBT' 'LUNGS'};
+%structures = {'ILUNG' 'ESOPHAGUS' 'HEART' 'NFZ' 'PBT' 'LUNGS'};
+
 %structures = {'PTV' 'GTV'};
 
-structures = {'ESOPHAGUS'};
-
+%structures = {'ESOPHAGUS'};
+structures = {'ILUNG' 'HEART' 'NFZ' 'PBT' 'LUNGS' 'ESOPHAGUS'};
 %structures = {'HEART'};
 
 %toxicities = {'lclfail'};
 %tox_columns = {'Local Failure'};
 %toxdate_columns = {'Local Failure Date'};
 
-% toxicities = {'pultox'};
-% tox_columns = {'Highest pulmonary toxicity or RT pneumonitis grade'};
-% toxdate_columns = {'Pulmonary tox date'};
+toxicities = {'pultox'};
+tox_columns = {'Highest pulmonary toxicity or RT pneumonitis grade'};
+toxdate_columns = {'Pulmonary tox date'};
  
 %toxicities = {'rp'};
 %tox_columns = {'RT pneumonitis grade'};
 %toxdate_columns = {'RP date'};
 
-toxicities = {'esotox'};
-tox_columns = {'Highest esophagitis grade'};
-toxdate_columns = {'Highest esophagitis date'};
+%toxicities = {'esotox'};
+%tox_columns = {'Highest esophagitis grade'};
+%toxdate_columns = {'Highest esophagitis date'};
 
 do_exclude_fu=false;
 
@@ -212,8 +222,16 @@ for i=1:length(toxicities)
         else
             fn=['Z:\elw\MATLAB\nfz_analy\meta_data\NFZ_',structures{m},'_DVHs.mat'];
             %%tmp
-            
         end
+        
+        if do_lbed_exclude
+            fn=['Z:\elw\MATLAB\nfz_analy\meta_data\NFZ_LBED_',structures{m},'_DVHs.mat'];
+        else
+            fn=['Z:\elw\MATLAB\nfz_analy\meta_data\NFZ_',structures{m},'_DVHs.mat'];
+            %%tmp
+        end
+        
+        
         load(fn,'DVH');
         disp(['Loading ',fn]);
         %% match patients DVH and .xls
@@ -372,11 +390,11 @@ for i=1:length(toxicities)
         CGobj_org = CGobj_org.fLogisticRegressionGridExact_EUD();
         
         
-        disp(['gEUD Mixture Model...']);
-        fig_loc='Z:\elw\MATLAB\nfz_analy\slides\figures\latest\';
-        CGobj_org = CGobj_org.fLogisticRegressionGridExactMixtureModel_2_EUD(mm_do_print,fig_loc);
-        
-            
+%         disp(['gEUD Mixture Model...']);
+%         fig_loc='Z:\elw\MATLAB\nfz_analy\slides\figures\latest\';
+%         CGobj_org = CGobj_org.fLogisticRegressionGridExactMixtureModel_2_EUD(mm_do_print,fig_loc);
+%         
+%             
       
         
         % save result
@@ -387,7 +405,13 @@ for i=1:length(toxicities)
                 structures{m},'_',...
                 toxicities{i},'_',...
                 'a2b',num2str(1/beta2alpha(1)),'_lowrx_data.mat'];
-        else
+        elseif do_lbed_exclude,
+                 fn=['Z:\elw\MATLAB\nfz_analy\meta_data\NFZ_',...
+                structures{m},'_',...
+                toxicities{i},'_',...
+                'a2b',num2str(1/beta2alpha(1)),'_lbed_data.mat'];
+         else
+                
         %
         %tmp
         %

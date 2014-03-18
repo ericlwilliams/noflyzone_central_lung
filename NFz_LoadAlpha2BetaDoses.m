@@ -5,15 +5,15 @@ close all;
 %fn = {'BPx_DiVj_DVHs_fx-1_a2bInf.mat'};
 a2b_corr='BED';
     
-
+do_lbed_exclude = true;
 
 screen_size=get(0,'ScreenSize');
 
-%structures = {'PBT' 'ILUNG' 'ESOPHAGUS' 'HEART' 'NFZ' 'LUNGS'};
-structures = {'ESOPHAGUS'};
+structures = {'PBT' 'ILUNG' 'ESOPHAGUS' 'HEART' 'NFZ' 'LUNGS'};
+%structures = {'ESOPHAGUS'};
 
 %toxicities = {'rp','pultox','esotox','lclfail'};
-toxicities = {'esotox'};
+toxicities = {'pultox'};
 
 fp = 'Z:\elw\MATLAB\nfz_analy\meta_data\';
 fp_save = 'Z:\elw\MATLAB\nfz_analy\meta_data\a2b_data\';
@@ -30,15 +30,27 @@ for i=1:length(toxicities)
         disp(['Counter: ',num2str(cur_fig_ctr)]);
         fprintf('\n');
         
+        if do_lbed_exclude,
+            
+        save_basename = [fp_save,'NFZ_',...
+                        structures{j},'_lbed_',...
+                        toxicities{i}];
+        else
         save_basename = [fp_save,'NFZ_',...
                         structures{j},'_',...
                         toxicities{i}];
-        
+        end
         %% load data
         if exist('CGobj','var')==1,
             clear CGobj;
         end
+        
+        if do_lbed_exclude,
+        fn = ['NFZ_',structures{j},'_',toxicities{i},'_a2bInf_lbed_data.mat'];
+        else
         fn = ['NFZ_',structures{j},'_',toxicities{i},'_a2bInf_data.mat'];
+        end
+        
         disp(['']);
         disp(['Loading ',fn]);
         disp(['']);
@@ -50,7 +62,8 @@ for i=1:length(toxicities)
         CGobj.mGrp(n).mBeta2AlphaCorrection = a2b_corr;
     end
     
-    a2b_range = [.1:.1:30];
+    %a2b_range = [.1:.1:30];
+    a2b_range = [.5:.5:30];
     % #pts x #a2b values
     a2b_doses = cell(length(CGobj.mGrp),length(a2b_range)+1);
     a2b_vols = cell(length(CGobj.mGrp),length(a2b_range)+1);
@@ -60,7 +73,7 @@ for i=1:length(toxicities)
     a2b_vols(:,end) = {CGobj.mGrp.mVolCum}';
     
     n_pt = CGobj.mNumInGrp;
-    
+    disp(['here'])
     for k=1:length(a2b_range),
         
         tmpCGobj = CGobj;       
@@ -78,7 +91,7 @@ for i=1:length(toxicities)
       a2b_dmax = inf(n_pt,length(a2b_range));
       a2b_dmean = inf(n_pt,length(a2b_range));
 
-    
+disp(['here'])    
         for l=1:length(a2b_range)%loop over all a/b dose bins
             cur_doses = [a2b_doses{:,l}];
             cur_vols = [a2b_vols{:,l}]; %501 x 125
@@ -120,12 +133,25 @@ for i=1:length(toxicities)
      
      
      disp(['Saving ' save_basename '_a2b_dosebins.mat...']);
+     
+     if do_lbed_exclude,
+         
+     save([save_basename '_a2b_lbed_data.mat'],...
+         'a2b_dmax',...
+         'a2b_dmean',...
+          'a2b_d05',...
+          'a2b_d35',...
+         'a2b_range');
+     else
+         
      save([save_basename '_a2b_data.mat'],...
          'a2b_dmax',...
          'a2b_dmean',...
           'a2b_d05',...
           'a2b_d35',...
          'a2b_range');
+
+     end
      clear a2b_max_doses;
      clear a2b_mean_doses;
      toc;

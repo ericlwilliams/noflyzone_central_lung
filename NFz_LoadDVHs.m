@@ -6,13 +6,17 @@ tic;
 dose_step=0.50;
 pt_added=0;
 
-do_tcp_exclude=true;
-%tmp
+do_tcp_exclude=false;
+do_lbed_exclude=true;
+
 if do_tcp_exclude
-    filepathname='Z:/elw/MATLAB/original_data/NFZ/Central_tumor_dataset_tcp_4-22-13'
+    filepathname='Z:/elw/MATLAB/original_data/NFZ/Central_tumor_dataset_tcp_4-22-13';
     pathname='Z:/elw/MATLAB/original_data/NFZ/nfz_tcp_dvhs/';
+elseif do_lbed_exclude
+    filepathname='Z:/elw/MATLAB/original_data/NFZ/Central_tumor_dataset_lbed_4-22-13';
+    pathname='Z:/elw/MATLAB/original_data/NFZ/nfz_lbed_dvhs/';
 else
-    filepathname='Z:/elw/MATLAB/original_data/NFZ/Central_tumor_dataset_4-22-13'
+    filepathname='Z:/elw/MATLAB/original_data/NFZ/Central_tumor_dataset_4-22-13';
     pathname='Z:/elw/MATLAB/original_data/NFZ/nfz_dvhs/';
 end
 
@@ -22,10 +26,10 @@ save(filepathname,'xlsraw');
 
 % read data from each .TXT file
 
-%structures = {'CLUNG' 'ESOPHAGUS' 'GTV' 'HEART'...
-%            'ILUNG' 'NFZ' 'PBT' 'PTV' 'TRACHEA' 'LUNGS'};
+structures = {'CLUNG' 'ESOPHAGUS' 'GTV' 'HEART'...
+            'ILUNG' 'NFZ' 'PBT' 'PTV' 'TRACHEA' 'LUNGS'};
 
-structures = {'PTV' 'GTV'};
+%structures = {'PTV' 'GTV'};
 
 % to_exclude = {'Byrne_35140428_CLUNG', 'Caruso_35359984_CLUNG',...
 %     'DEGRASSE_35061243_CLUNG',...
@@ -244,11 +248,13 @@ end
 
  if do_tcp_exclude
     fn=['Z:\elw\MATLAB\nfz_analy\meta_data\NFZ_TCP_',structure,'_DVHs.mat'];
+ elseif do_lbed_exclude
+     fn=['Z:\elw\MATLAB\nfz_analy\meta_data\NFZ_LBED_',structure,'_DVHs.mat'];
  else
     fn=['Z:\elw\MATLAB\nfz_analy\meta_data\NFZ_',structure,'_DVHs.mat'];
  end
  
-if 0
+if 1
     disp(['Saving ',fn]);
     save(fn,'DVH');
 end

@@ -4,6 +4,7 @@ tic;close all;
 
 % var_str controls what to look at (e.g. max, mean, min)
 % these have been saved in files in meta_data/a2b_data/
+do_lbed_exclude = true;
 
 %var_str = 'max'; 
 var_str = 'd35'; 
@@ -15,11 +16,11 @@ do_plot_km = false;
 do_print = true;
 fig_loc = 'Z:/elw/MATLAB/nfz_analy/slides/figures/latest/';
 
-%structures = {'PBT' 'ILUNG' 'ESOPHAGUS' 'HEART' 'NFZ' 'LUNGS'};
-structures = {'ESOPHAGUS'};
+structures = {'PBT' 'ILUNG' 'ESOPHAGUS' 'HEART' 'NFZ' 'LUNGS'};
+%structures = {'ESOPHAGUS'};
 
 %toxicities = {'rp','pultox','esotox'};
-toxicities = {'esotox'};
+toxicities = {'pultox'};
 
 fp = 'Z:\elw\MATLAB\nfz_analy\meta_data\';
 
@@ -34,15 +35,27 @@ for i=1:length(toxicities)
         disp(['Struct: ',structures{j}]);
         disp(['Counter: ',num2str(cur_fig_ctr)]);
         fprintf('\n');
-        
+        if do_lbed_exclude,
+            
         fig_basename = [fig_loc,'nfz_',...
+            structures{j},'_lbed_',...
+            toxicities{i}];
+        else
+            fig_basename = [fig_loc,'nfz_',...
             structures{j},'_',...
             toxicities{i}];
+        end
         %% load data
         if exist('CGobj','var')==1,
             clear CGobj;
         end
+        
+        if do_lbed_exclude,
+        fn = ['NFZ_',structures{j},'_',toxicities{i},'_a2bInf_lbed_data.mat'];
+        else
         fn = ['NFZ_',structures{j},'_',toxicities{i},'_a2bInf_data.mat'];
+        end
+        
         disp(['']);
         disp(['Loading ',fn]);
         disp(['']);
@@ -51,7 +64,12 @@ for i=1:length(toxicities)
         clear CGobj_org;
         
         %% load a2b data
+        if do_lbed_exclude,
+        fn2 = ['a2b_data\NFZ_',structures{j},'_lbed_',toxicities{i},'_a2b_lbed_data.mat'];
+        else
         fn2 = ['a2b_data\NFZ_',structures{j},'_',toxicities{i},'_a2b_data.mat'];
+        end
+        
         load(strcat(fp,fn2)); % a2b_dmax, a2b_range, a2b_dmean, a2b_d05, a2b_d35
         
         
