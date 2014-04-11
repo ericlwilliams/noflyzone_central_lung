@@ -4,7 +4,8 @@ tic;close all;
 %% TMP
 do_special_tox=false;
 
-do_lbed_exclude = true;
+do_lbed_exclude = false;
+do_gd3_exclude = true;
 
 screen_size=get(0,'ScreenSize');
 ss_four2three = [0 0 screen_size(3)/2 (screen_size(4)/2)*(4/3)];
@@ -12,26 +13,26 @@ do_print=true;
 
 fig_loc = 'Z:/elw/MATLAB/nfz_analy/slides/figures/latest/';
 
-structures = {'ILUNG' 'ESOPHAGUS' 'HEART' 'NFZ' 'PBT' 'LUNGS'};
-str_colors = {'k' 'm' 'b' 'r' 'g' 'c'};
-
-
+%structures = {'ILUNG' 'ESOPHAGUS' 'HEART' 'NFZ' 'PBT' 'LUNGS'};
+%str_colors = {'k' 'm' 'b' 'r' 'g' 'c'};
+structures = {'ESOPHAGUS'};
+str_colors = {'k'};
 
 %structures = {'ESOPHAGUS'};
 %str_colors = {'k'};
 
-toxicities = {'pultox'};
+%toxicities = {'pultox'};
 %toxicities = {'rp','pultox','esotox'};
-%toxicities = {'esotox'};
+toxicities = {'esotox'};
 
 comp_rate = 0.2;
 
 fp = 'Z:\elw\MATLAB\nfz_analy\meta_data\';
 
-% a2b = {'10'};
-% cur_a2b = 10;
-a2b = {'3'};
-cur_a2b = 3;
+a2b = {'10'};
+cur_a2b = 10;
+%a2b = {'3'};
+%cur_a2b = 3;
 
 for i=1:length(toxicities)
     
@@ -70,6 +71,13 @@ for i=1:length(toxicities)
             toxicities{i},'_a2b',...
             a2b{1}];
             
+        elseif do_gd3_exclude,
+            
+        fig_basename = [fig_loc,'nfz_',...
+            structures{j},'_nogd3_',...
+            toxicities{i},'_a2b',...
+            a2b{1}];
+            
         else
         fig_basename = [fig_loc,'nfz_',...
             structures{j},'_',...
@@ -81,6 +89,8 @@ for i=1:length(toxicities)
         if ~do_special_tox,
             if do_lbed_exclude,
                 fn = ['NFZ_',structures{j},'_',toxicities{i},'_a2b',a2b{1},'_lbed_data.mat'];
+            elseif do_gd3_exclude,
+                 fn = ['NFZ_',structures{j},'_',toxicities{i},'_a2b',a2b{1},'_nogd3_data.mat'];
             else
                 fn = ['NFZ_',structures{j},'_',toxicities{i},'_a2b',a2b{1},'_data.mat'];
             end
@@ -926,7 +936,7 @@ for i=1:length(toxicities)
     % Logistic regression loglikelihoods
     cur_fig=figure(i+100);
     if isequal(toxicities{i},'pultox')
-        if do_lbed_exclude,
+        if do_lbed_exclude || do_gd3_exclude,
             disp([]);
 %             ylim([-0.59 -0.574]);
         else

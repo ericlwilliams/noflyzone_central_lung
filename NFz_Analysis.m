@@ -2,15 +2,15 @@ function NFz_Analysis
 tic;
 save_result = true;
 mm_do_print = false;
-beta2alpha=[1/3];a2b_corr = 'BED';
-%beta2alpha=[1/10];a2b_corr = 'BED';
+%beta2alpha=[1/3];a2b_corr = 'BED';
+beta2alpha=[1/10];a2b_corr = 'BED';
 %beta2alpha=[0];a2b_corr = 'PHYS';
 
 tox_grade = 2;% toxicity defined as >= tox_grade
 
 do_tcp_exclude = false;
-
-do_lbed_exclude = true;
+do_lbed_exclude = false;
+do_gd3_exclude = true;
 
 dosestep=1;
 volstep=10; % volume step in cc
@@ -36,25 +36,26 @@ end
 
 %structures = {'PTV' 'GTV'};
 
-%structures = {'ESOPHAGUS'};
-structures = {'ILUNG' 'HEART' 'NFZ' 'PBT' 'LUNGS' 'ESOPHAGUS'};
+structures = {'ESOPHAGUS'};
+%structures = {'ILUNG' 'HEART' 'NFZ' 'PBT' 'LUNGS' 'ESOPHAGUS'};
 %structures = {'HEART'};
 
 %toxicities = {'lclfail'};
 %tox_columns = {'Local Failure'};
 %toxdate_columns = {'Local Failure Date'};
 
-toxicities = {'pultox'};
-tox_columns = {'Highest pulmonary toxicity or RT pneumonitis grade'};
-toxdate_columns = {'Pulmonary tox date'};
+
+%toxicities = {'pultox'};
+%tox_columns = {'Highest pulmonary toxicity or RT pneumonitis grade'};
+%toxdate_columns = {'Pulmonary tox date'};
  
 %toxicities = {'rp'};
 %tox_columns = {'RT pneumonitis grade'};
 %toxdate_columns = {'RP date'};
 
-%toxicities = {'esotox'};
-%tox_columns = {'Highest esophagitis grade'};
-%toxdate_columns = {'Highest esophagitis date'};
+toxicities = {'esotox'};
+tox_columns = {'Highest esophagitis grade'};
+toxdate_columns = {'Highest esophagitis date'};
 
 do_exclude_fu=false;
 
@@ -178,7 +179,10 @@ for i=1:length(toxicities)
     if isequal(toxicities{i},'lclfail')
         flgcensor(flgtox) = toxgrade(flgtox)~=1;
     else
-        flgcensor(flgtox) = toxgrade(flgtox)<tox_grade;
+        if do_gd3_exclude
+            flgcensor(flgtox) = toxgrade(flgtox)~=tox_grade;
+        else
+            flgcensor(flgtox) = toxgrade(flgtox)<tox_grade;
     end
     
     PtInfo.mLabel = toxdate_columns{i};
@@ -410,6 +414,12 @@ for i=1:length(toxicities)
                 structures{m},'_',...
                 toxicities{i},'_',...
                 'a2b',num2str(1/beta2alpha(1)),'_lbed_data.mat'];
+        elseif do_gd3_exclude,
+    	fn=['Z:\elw\MATLAB\nfz_analy\meta_data\NFZ_',...
+                structures{m},'_',...
+                toxicities{i},'_',...
+                'a2b',num2str(1/beta2alpha(1)),'_nogd3_data.mat'];
+            
          else
                 
         %

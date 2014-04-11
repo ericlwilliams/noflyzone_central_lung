@@ -10,29 +10,31 @@ ss_four2three = [0 0 screen_size(3)/2 (screen_size(4)/2)*(4/3)];
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 do_print = true;
 do_tcp_exclude = false; %exclude 10 patients with low Rx (<= 3000 cGy)
-do_lbed_exclude = true; % exclude 10 patients with low BED (<= 6000 cGy_10)
+do_lbed_exclude = false; 
+do_gd3_exclude = true;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
 disp('**** START Flags ****');
 disp([num2str(do_print),' - do_print']);
 disp([num2str(do_tcp_exclude),' - do_tcp_exclude']);
 disp([num2str(do_lbed_exclude),' - do_lbed_exclude']);
+disp([num2str(do_gd3_exclude),' - do_gd3_exclude']);
 disp('**** END Flags ****');
 disp(sprintf('\n'));
 
 fig_loc = 'Z:/elw/MATLAB/nfz_analy/slides/figures/latest/';
 
-structures = {'ILUNG' 'ESOPHAGUS' 'HEART' 'LUNGS' 'NFZ' 'PBT'};
-%structures = {'ESOPHAGUS'};
+%structures = {'ILUNG' 'ESOPHAGUS' 'HEART' 'LUNGS' 'NFZ' 'PBT'};
+structures = {'ESOPHAGUS'};
 %structures = {'PTV' 'GTV'};
 %toxicities = {'rp','pultox','esotox','lclfail};
 %toxicities = {'lclfail'};
-toxicities = {'pultox'};
+toxicities = {'esotox'};
 
 fp = 'Z:\elw\MATLAB\nfz_analy\meta_data\';
 
 %a2b = {'Inf' '3' '10'};
-a2b = {'3'};
+a2b = {'10'};
 
 for i=1:length(toxicities)
     
@@ -55,6 +57,11 @@ for i=1:length(toxicities)
                         structures{j},'_lbed_',...
                         toxicities{i},'_a2b',...
                         a2b{1}];
+        elseif do_gd3_exclude
+           fig_basename = [fig_loc,'nfz_',...
+                        structures{j},'_nogd3_',...
+                        toxicities{i},'_a2b',...
+                        a2b{1}];
         
         else
             fig_basename = [fig_loc,'nfz_',...
@@ -67,6 +74,8 @@ for i=1:length(toxicities)
         fn = ['NFZ_',structures{j},'_',toxicities{i},'_a2b',a2b{1},'_lowrx_data.mat'];
     elseif do_lbed_exclude,
         fn = ['NFZ_',structures{j},'_',toxicities{i},'_a2b',a2b{1},'_lbed_data.mat'];
+    elseif do_gd3_exclude,
+        fn = ['NFZ_',structures{j},'_',toxicities{i},'_a2b',a2b{1},'_nogd3_data.mat'];
     else
         fn = ['NFZ_',structures{j},'_',toxicities{i},'_a2b',a2b{1},'_data.mat'];
     end

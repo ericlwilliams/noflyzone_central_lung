@@ -9,7 +9,8 @@ ss_four2three = [0 0 screen_size(3)/2 (screen_size(4)/2)*(4/3)];
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 do_print = true;
 do_debug = false;
-do_lbed_exclude = true;
+do_lbed_exclude = false;
+do_gd3_exclude = true;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 disp('**** START Flags ****');
@@ -21,13 +22,13 @@ fprintf('\n');
 fig_loc = 'Z:/elw/MATLAB/nfz_analy/slides/figures/latest/';
 
 %a2b = {'Inf' '3'};
-a2b = {'3'};
+a2b = {'10'};
 %a2b = {'Inf'};
-structures = {'ILUNG' 'ESOPHAGUS' 'HEART' 'LUNGS' 'NFZ' 'PBT'};
-%structures = {'ESOPHAGUS'};
+%structures = {'ILUNG' 'ESOPHAGUS' 'HEART' 'LUNGS' 'NFZ' 'PBT'};
+structures = {'ESOPHAGUS'};
 
 %toxicities = {'rp','pultox','esotox'};
-toxicities = {'pultox'};
+toxicities = {'esotox'};
 
 fp = 'Z:\elw\MATLAB\nfz_analy\meta_data\';
 
@@ -48,6 +49,11 @@ for i=1:length(toxicities)
                         toxicities{i},'_a2b',...
                         a2b{1}];
         
+        elseif do_gd3_exclude
+           fig_basename = [fig_loc,'nfz_',...
+                        structures{j},'_nogd3_',...
+                        toxicities{i},'_a2b',...
+                        a2b{1}];        
         else
             fig_basename = [fig_loc,'nfz_',...
                         structures{j},'_',...
@@ -60,6 +66,8 @@ for i=1:length(toxicities)
         
         if do_lbed_exclude,
             fn = ['NFZ_',structures{j},'_',toxicities{i},'_a2b',a2b{1},'_lbed_data.mat'];
+        elseif do_gd3_exclude,
+            fn = ['NFZ_',structures{j},'_',toxicities{i},'_a2b',a2b{1},'_nogd3_data.mat'];
         else
             fn = ['NFZ_',structures{j},'_',toxicities{i},'_a2b',a2b{1},'_data.mat'];
         end

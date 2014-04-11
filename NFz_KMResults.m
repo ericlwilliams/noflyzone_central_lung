@@ -7,6 +7,7 @@ ss_four2three = [0 0 screen_size(3)/2 (screen_size(4)/2)*(4/3)];
 %%% Check flags!
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 do_print = true;
+do_gd3_exclude = true;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 disp('**** START Flags ****');
@@ -17,7 +18,7 @@ disp(sprintf('\n'));
 fig_loc = 'Z:/elw/MATLAB/nfz_analy/slides/figures/latest/';
 
 %a2b = {'Inf' '3'};
-a2b = {'3'};
+a2b = {'10'};
 
 %structures = {'PBT' 'ILUNG' 'ESOPHAGUS' 'HEART' 'NFZ' 'LUNGS'};
 structures = {'ESOPHAGUS'};
@@ -39,7 +40,12 @@ for i=1:length(toxicities)
         fprintf('\n');
         
         %% load data
+
+    if do_gd3_exclude
+        fn = ['NFZ_',structures{j},'_',toxicities{i},'_a2b',a2b{1},'_nogd3_data.mat'];
+    else
         fn = ['NFZ_',structures{j},'_',toxicities{i},'_a2b',a2b{1},'_data.mat'];
+    end
         disp(['']);
         disp(['Loading ',fn]);
         disp(['']);
