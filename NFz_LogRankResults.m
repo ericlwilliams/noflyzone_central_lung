@@ -10,7 +10,7 @@ ss_four2three = [0 0 screen_size(3)/2 (screen_size(4)/2)*(4/3)];
 do_print = true;
 do_debug = false;
 do_lbed_exclude = false;
-do_gd3_exclude = true;
+do_late_exclude = true;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 disp('**** START Flags ****');
@@ -49,9 +49,9 @@ for i=1:length(toxicities)
                         toxicities{i},'_a2b',...
                         a2b{1}];
         
-        elseif do_gd3_exclude
+        elseif do_late_exclude
            fig_basename = [fig_loc,'nfz_',...
-                        structures{j},'_nogd3_',...
+                        structures{j},'_acute_',...
                         toxicities{i},'_a2b',...
                         a2b{1}];        
         else
@@ -66,8 +66,8 @@ for i=1:length(toxicities)
         
         if do_lbed_exclude,
             fn = ['NFZ_',structures{j},'_',toxicities{i},'_a2b',a2b{1},'_lbed_data.mat'];
-        elseif do_gd3_exclude,
-            fn = ['NFZ_',structures{j},'_',toxicities{i},'_a2b',a2b{1},'_nogd3_data.mat'];
+        elseif do_late_exclude,
+            fn = ['NFZ_',structures{j},'_',toxicities{i},'_a2b',a2b{1},'_acute_data.mat'];
         else
             fn = ['NFZ_',structures{j},'_',toxicities{i},'_a2b',a2b{1},'_data.mat'];
         end
@@ -234,8 +234,8 @@ for i=1:length(toxicities)
                 
       %% Best COX median split KM curve
       %dose=87.5;%a2b=3
-      %dose=44.8;%a2b=10
-      dose=25.6;%a2b=Inf
+      dose=44.8;%a2b=10
+      %dose=25.6;%a2b=Inf
       split=-1;
         
         [cur_fig, ~, ~]=fPlotKaplanMeierCurve_VDx({CGobj},dose,split);
@@ -384,6 +384,53 @@ for i=1:length(toxicities)
                 
             %system('pdfcrop fname fname');% to remove borders
         end
+        
+               
+        %% D4.8
+        volume=4.8;
+        split=-1;
+        
+        [cur_fig, ~, ~]=fPlotKaplanMeierCurve_DVx({CGobj},volume,split);
+        
+        ylim([0 0.3]);
+        set(cur_fig,'Position',ss_four2three);
+        grid on;
+        set(gca,'GridLineStyle','--')
+        
+        if do_print,
+            
+            set(cur_fig,'Color','w');
+            export_fig(cur_fig,...
+                [fig_basename,'_km_d48_med_split'],'-pdf');
+            disp(['Saving ',...
+                fig_basename,'_km_d48_med_split.pdf']);
+                
+            %system('pdfcrop fname fname');% to remove borders
+        end
+        
+                   
+        %% D6.8
+        volume=6.8;
+        split=-1;
+        
+        [cur_fig, ~, ~]=fPlotKaplanMeierCurve_DVx({CGobj},volume,split);
+        
+        ylim([0 0.3]);
+        set(cur_fig,'Position',ss_four2three);
+        grid on;
+        set(gca,'GridLineStyle','--')
+        
+        if do_print,
+            
+            set(cur_fig,'Color','w');
+            export_fig(cur_fig,...
+                [fig_basename,'_km_d68_med_split'],'-pdf');
+            disp(['Saving ',...
+                fig_basename,'_km_d68_med_split.pdf']);
+                
+            %system('pdfcrop fname fname');% to remove borders
+        end
+        
         
         
         %% D3.5

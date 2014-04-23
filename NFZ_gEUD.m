@@ -5,7 +5,7 @@ tic;close all;
 do_special_tox=false;
 
 do_lbed_exclude = false;
-do_gd3_exclude = true;
+do_late_exclude = true;
 
 screen_size=get(0,'ScreenSize');
 ss_four2three = [0 0 screen_size(3)/2 (screen_size(4)/2)*(4/3)];
@@ -71,10 +71,10 @@ for i=1:length(toxicities)
             toxicities{i},'_a2b',...
             a2b{1}];
             
-        elseif do_gd3_exclude,
+        elseif do_late_exclude,
             
         fig_basename = [fig_loc,'nfz_',...
-            structures{j},'_nogd3_',...
+            structures{j},'_acute_',...
             toxicities{i},'_a2b',...
             a2b{1}];
             
@@ -89,8 +89,8 @@ for i=1:length(toxicities)
         if ~do_special_tox,
             if do_lbed_exclude,
                 fn = ['NFZ_',structures{j},'_',toxicities{i},'_a2b',a2b{1},'_lbed_data.mat'];
-            elseif do_gd3_exclude,
-                 fn = ['NFZ_',structures{j},'_',toxicities{i},'_a2b',a2b{1},'_nogd3_data.mat'];
+            elseif do_late_exclude,
+                 fn = ['NFZ_',structures{j},'_',toxicities{i},'_a2b',a2b{1},'_acute_data.mat'];
             else
                 fn = ['NFZ_',structures{j},'_',toxicities{i},'_a2b',a2b{1},'_data.mat'];
             end
@@ -200,6 +200,8 @@ for i=1:length(toxicities)
         %dmax = [max([CGobj.mGrp.mDoseBins_LQ])]';
         
         d05s = zeros(size(v_bins,2),1);
+        d48s = zeros(size(v_bins,2),1);
+        d68s = zeros(size(v_bins,2),1);
         d35s = zeros(size(v_bins,2),1);
         dmax = zeros(size(v_bins,2),1);
     
@@ -218,6 +220,19 @@ for i=1:length(toxicities)
             dose = d_bins(:,k);
             d05 = min(dose(d05_inds));
             d05s(k) = d05;
+    
+            v48 = vol<4.8; %% < 5 cc
+            d48_inds = find(v48);
+            dose = d_bins(:,k);
+            d48 = min(dose(d48_inds));
+            d48s(k) = d48;
+            
+    
+            v68 = vol<6.8; %% < 5 cc
+            d68_inds = find(v68);
+            dose = d_bins(:,k);
+            d68 = min(dose(d68_inds));
+            d68s(k) = d68;
             
             v35 = vol<3.5; %% < 5 cc
             d35_inds = find(v35);
@@ -806,6 +821,157 @@ for i=1:length(toxicities)
         end
         
         
+        
+         %% D_48
+        
+        cur_fig=figure(cur_fig_ctr+6000);
+        set(gcf,'Position',ss_four2three);
+       
+        
+        % regression using exact EUD
+        [b,~,s]=glmfit(d48s,[ptcomp pttotal],'binomial','link','logit');
+        
+        disp('D4.8cc model coefficients')
+        disp(['beta: ',num2str(b(2))])
+        disp(['95% CI: ',num2str(b(2) + 0.9945*[-s.se(2) s.se(2)])]);
+                 
+        pr = exp(b(1)+b(2)*d48s);
+        pr = pr./(1+pr); % logistic probability
+        pr(~logical(ptcomp)) = 1-pr(~logical(ptcomp)); % non-complication patients
+        pr = log(pr); % log likelihood of each patients
+        loglikelihood = sum(pr); % loglikelihood of al
+        
+        
+        disp(['SE: ',num2str(s.se(2)),' p: ',num2str(s.p(2)),' Logl: ',num2str(loglikelihood)]);
+
+                        
+        pvalue = [s.p];
+        pval = pvalue(2); % the p-value corresponding to gEUD
+        
+        %tmp
+        doses = (0:max(d48s))'; % doses (gEUD) whose RP probability will be computed
+        [rpb,rplo,rphi] = glmval(b, doses,'logit',s); % the responding function values at doses
+        
+        % plot
+        hold on;
+        plot(doses,rpb,'k','LineWidth',2); % responding function
+        plot(doses,rpb-rplo,'k','LineWidth',1); % low CI curve
+        plot(doses,rpb+rphi,'k','LineWidth',1); % high CI curve
+        
+        
+     
+        flg=[CGobj.mGrp.mFlgCensor]; % censor flags of patients
+        
+        [medianeud,~,~,binlow,binhigh,numcomp,numtotal,betainv84,betainv16] = EventObserved(flg,d48s,4);
+        prob = numcomp./numtotal;
+        % plot
+        errorbar(medianeud,prob,max(0,prob-betainv16),max(0,betainv84-prob),'k*','LineWidth',1);
+        errorbar_x(medianeud,prob,(medianeud-binlow),(binhigh-medianeud),'k*');
+        
+        %tmp
+        ylim([0 0.5]);
+        xlim([0 max(binhigh)*1.1]);
+        
+        %xlims = xlim;
+        %xmax = xlims(2);
+        %xlim([0 xmax]);
+        %ylim([0 0.5]);
+        
+        loga_str = ['p-val: %s'];
+        %str = sprintf(loga_str,num2str(loga),num2str(pval,2),structures{j});
+        str = sprintf(loga_str,num2str(pval,'%3.2e'));
+        %text(0.65,0.85,str,'FontSize',24,'Units','normalized');
+        textbp(str,'FontSize',24);
+        
+        set(gca,'xminortick','on','yminortick','on');
+        set(gca,'box','on');
+        set(gca,'FontSize',22);
+        %xlabel('D_{05 cc} [Gy]','FontSize',25);
+        xlabel('D_{4.8 cc} [Gy_{10}]','FontSize',24);
+        ylabel('Complication rate','FontSize',24);
+        
+        if do_print,
+            set(cur_fig,'Color','w');
+            export_fig(cur_fig,...
+                [fig_basename,'_lr_d48'],'-pdf');
+            disp(['Saving ',fig_basename,'_lr_d48.pdf']);
+        end
+        
+           %% D_68
+        
+        cur_fig=figure(cur_fig_ctr+7000);
+        set(gcf,'Position',ss_four2three);
+       
+        
+        % regression using exact EUD
+        [b,~,s]=glmfit(d68s,[ptcomp pttotal],'binomial','link','logit');
+        
+        disp('D6.8cc model coefficients')
+        disp(['beta: ',num2str(b(2))])
+        disp(['95% CI: ',num2str(b(2) + 0.9945*[-s.se(2) s.se(2)])]);
+                 
+        pr = exp(b(1)+b(2)*d68s);
+        pr = pr./(1+pr); % logistic probability
+        pr(~logical(ptcomp)) = 1-pr(~logical(ptcomp)); % non-complication patients
+        pr = log(pr); % log likelihood of each patients
+        loglikelihood = sum(pr); % loglikelihood of al
+        
+        
+        disp(['SE: ',num2str(s.se(2)),' p: ',num2str(s.p(2)),' Logl: ',num2str(loglikelihood)]);
+
+                        
+        pvalue = [s.p];
+        pval = pvalue(2); % the p-value corresponding to gEUD
+        
+        %tmp
+        doses = (0:max(d68s))'; % doses (gEUD) whose RP probability will be computed
+        [rpb,rplo,rphi] = glmval(b, doses,'logit',s); % the responding function values at doses
+        
+        % plot
+        hold on;
+        plot(doses,rpb,'k','LineWidth',2); % responding function
+        plot(doses,rpb-rplo,'k','LineWidth',1); % low CI curve
+        plot(doses,rpb+rphi,'k','LineWidth',1); % high CI curve
+        
+        
+     
+        flg=[CGobj.mGrp.mFlgCensor]; % censor flags of patients
+        
+        [medianeud,~,~,binlow,binhigh,numcomp,numtotal,betainv84,betainv16] = EventObserved(flg,d68s,4);
+        prob = numcomp./numtotal;
+        % plot
+        errorbar(medianeud,prob,max(0,prob-betainv16),max(0,betainv84-prob),'k*','LineWidth',1);
+        errorbar_x(medianeud,prob,(medianeud-binlow),(binhigh-medianeud),'k*');
+        
+        %tmp
+        ylim([0 0.5]);
+        xlim([0 max(binhigh)*1.1]);
+        
+        %xlims = xlim;
+        %xmax = xlims(2);
+        %xlim([0 xmax]);
+        %ylim([0 0.5]);
+        
+        loga_str = ['p-val: %s'];
+        %str = sprintf(loga_str,num2str(loga),num2str(pval,2),structures{j});
+        str = sprintf(loga_str,num2str(pval,'%3.2e'));
+        %text(0.65,0.85,str,'FontSize',24,'Units','normalized');
+        textbp(str,'FontSize',24);
+        
+        set(gca,'xminortick','on','yminortick','on');
+        set(gca,'box','on');
+        set(gca,'FontSize',22);
+        %xlabel('D_{05 cc} [Gy]','FontSize',25);
+        xlabel('D_{6.8 cc} [Gy_{10}]','FontSize',24);
+        ylabel('Complication rate','FontSize',24);
+        
+        if do_print,
+            set(cur_fig,'Color','w');
+            export_fig(cur_fig,...
+                [fig_basename,'_lr_d68'],'-pdf');
+            disp(['Saving ',fig_basename,'_lr_d68.pdf']);
+        end
+        
 %         %% rate vs d35
 %          rate_vs_d35 = inf(length(rates),1);
 %         rate_vs_d35_hi = inf(length(rates),1);
@@ -936,7 +1102,7 @@ for i=1:length(toxicities)
     % Logistic regression loglikelihoods
     cur_fig=figure(i+100);
     if isequal(toxicities{i},'pultox')
-        if do_lbed_exclude || do_gd3_exclude,
+        if do_lbed_exclude || do_late_exclude,
             disp([]);
 %             ylim([-0.59 -0.574]);
         else

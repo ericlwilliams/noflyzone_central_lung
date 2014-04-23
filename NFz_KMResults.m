@@ -7,7 +7,7 @@ ss_four2three = [0 0 screen_size(3)/2 (screen_size(4)/2)*(4/3)];
 %%% Check flags!
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 do_print = true;
-do_gd3_exclude = true;
+do_late_exclude = true;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 disp('**** START Flags ****');
@@ -41,8 +41,8 @@ for i=1:length(toxicities)
         
         %% load data
 
-    if do_gd3_exclude
-        fn = ['NFZ_',structures{j},'_',toxicities{i},'_a2b',a2b{1},'_nogd3_data.mat'];
+    if do_late_exclude
+        fn = ['NFZ_',structures{j},'_',toxicities{i},'_a2b',a2b{1},'_acute_data.mat'];
     else
         fn = ['NFZ_',structures{j},'_',toxicities{i},'_a2b',a2b{1},'_data.mat'];
     end

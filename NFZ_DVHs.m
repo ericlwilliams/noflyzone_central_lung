@@ -6,20 +6,20 @@ ss_four2three = [0 0 screen_size(3)/2 screen_size(4)/2];
 do_print = true;
 fig_loc = 'Z:/elw/MATLAB/nfz_analy/slides/figures/latest/';
 
-do_lbed_exclude = true;
+do_lbed_exclude = false;
 
 mLymanN = -1:0.1:1;
 
-structures = {'ILUNG' 'ESOPHAGUS' 'HEART' 'NFZ' 'PBT' 'LUNGS'};
-%structures = {'LUNGS'};
+%structures = {'ILUNG' 'ESOPHAGUS' 'HEART' 'NFZ' 'PBT' 'LUNGS'};
+structures = {'ESOPHAGUS'};
 
 %structures = {'GTV'}
 %structures = {'ESOPHAGUS'}
 %toxicities = {'rp','pultox','esotox};
 
 %toxicities = {'lclfail'};
-%toxicities = {'esotox'};
-toxicities = {'pultox'};
+toxicities = {'esotox'};
+%toxicities = {'pultox'};
 
 fp = 'Z:\elw\MATLAB\nfz_analy\meta_data\';
 

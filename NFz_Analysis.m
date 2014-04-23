@@ -10,7 +10,7 @@ tox_grade = 2;% toxicity defined as >= tox_grade
 
 do_tcp_exclude = false;
 do_lbed_exclude = false;
-do_gd3_exclude = true;
+do_late_exclude = true;
 
 dosestep=1;
 volstep=10; % volume step in cc
@@ -179,11 +179,10 @@ for i=1:length(toxicities)
     if isequal(toxicities{i},'lclfail')
         flgcensor(flgtox) = toxgrade(flgtox)~=1;
     else
-        if do_gd3_exclude
-            flgcensor(flgtox) = toxgrade(flgtox)~=tox_grade;
-        else
-            flgcensor(flgtox) = toxgrade(flgtox)<tox_grade;
-    end
+        
+        
+    flgcensor(flgtox) = toxgrade(flgtox)<tox_grade;
+
     
     PtInfo.mLabel = toxdate_columns{i};
     PtInfo = PtInfo.fExtractColData();
@@ -215,8 +214,7 @@ for i=1:length(toxicities)
     flgcensor=flgcensor(flg);
     ptgender = ptgender(flg);
     age = age(flg);
-    
-
+  
     
     %% Load DVHs
     for m=1:length(structures) % iterate with each definition
@@ -304,7 +302,18 @@ for i=1:length(toxicities)
             CIobjs(cur_i,1).mDateComp = datepain(cur_i);
             CIobjs(cur_i,1).mDateLastFollowup = datefu(cur_i);
             %CIobjs(cur_i,1).mDateRelapse = datefailure(cur_i);
+            
+            if do_late_exclude, % mark late patients as censored
+                if ~flgcensor(cur_i) && (datepain(cur_i)-dateIGRT(cur_i))>90,
+                    CIobjs(cur_i,1).mFlgCensor = ~flgcensor(cur_i);
+                    disp(['late: ',num2str(datepain(cur_i)-dateIGRT(cur_i)),10,...
+                        'toxgrade: ',num2str(toxgrade(cur_i))])
+                else
+                    CIobjs(cur_i,1).mFlgCensor = flgcensor(cur_i);
+                end
+            else
             CIobjs(cur_i,1).mFlgCensor = flgcensor(cur_i);
+            end
             
             
             %CIobjs(cur_i,1).mDoseBins_LQ=DVH{g1(cur_i),2}(:,1);
@@ -414,11 +423,11 @@ for i=1:length(toxicities)
                 structures{m},'_',...
                 toxicities{i},'_',...
                 'a2b',num2str(1/beta2alpha(1)),'_lbed_data.mat'];
-        elseif do_gd3_exclude,
+        elseif do_late_exclude,
     	fn=['Z:\elw\MATLAB\nfz_analy\meta_data\NFZ_',...
                 structures{m},'_',...
                 toxicities{i},'_',...
-                'a2b',num2str(1/beta2alpha(1)),'_nogd3_data.mat'];
+                'a2b',num2str(1/beta2alpha(1)),'_acute_data.mat'];
             
          else
                 

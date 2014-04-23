@@ -11,14 +11,14 @@ ss_four2three = [0 0 screen_size(3)/2 (screen_size(4)/2)*(4/3)];
 do_print = true;
 do_tcp_exclude = false; %exclude 10 patients with low Rx (<= 3000 cGy)
 do_lbed_exclude = false; 
-do_gd3_exclude = true;
+do_late_exclude = true;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
 disp('**** START Flags ****');
 disp([num2str(do_print),' - do_print']);
 disp([num2str(do_tcp_exclude),' - do_tcp_exclude']);
 disp([num2str(do_lbed_exclude),' - do_lbed_exclude']);
-disp([num2str(do_gd3_exclude),' - do_gd3_exclude']);
+disp([num2str(do_late_exclude),' - do_late_exclude']);
 disp('**** END Flags ****');
 disp(sprintf('\n'));
 
@@ -57,9 +57,9 @@ for i=1:length(toxicities)
                         structures{j},'_lbed_',...
                         toxicities{i},'_a2b',...
                         a2b{1}];
-        elseif do_gd3_exclude
+        elseif do_late_exclude
            fig_basename = [fig_loc,'nfz_',...
-                        structures{j},'_nogd3_',...
+                        structures{j},'_acute_',...
                         toxicities{i},'_a2b',...
                         a2b{1}];
         
@@ -74,8 +74,8 @@ for i=1:length(toxicities)
         fn = ['NFZ_',structures{j},'_',toxicities{i},'_a2b',a2b{1},'_lowrx_data.mat'];
     elseif do_lbed_exclude,
         fn = ['NFZ_',structures{j},'_',toxicities{i},'_a2b',a2b{1},'_lbed_data.mat'];
-    elseif do_gd3_exclude,
-        fn = ['NFZ_',structures{j},'_',toxicities{i},'_a2b',a2b{1},'_nogd3_data.mat'];
+    elseif do_late_exclude,
+        fn = ['NFZ_',structures{j},'_',toxicities{i},'_a2b',a2b{1},'_acute_data.mat'];
     else
         fn = ['NFZ_',structures{j},'_',toxicities{i},'_a2b',a2b{1},'_data.mat'];
     end
@@ -144,7 +144,8 @@ for i=1:length(toxicities)
             h_mx_logl=loglog([x_pos_dvx(doseloc) x_pos_dvx(doseloc)],ylim,strcat(corr_col,'--'),'LineWidth',2);
             hold off;
             xlim([0 max(x_dvx)]);
-            set(gca,'fontsize',18);
+            set(gca,'fontsize',16);
+
             set(gca,'xminortick','on','yminortick','on');
             set(gca,'box','on');
             xlabel('(D_{V}) Volume [cc]','fontsize',20);
