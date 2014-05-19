@@ -386,8 +386,8 @@ for i=1:length(toxicities)
         end
         
                
-        %% D4.8
-        volume=4.8;
+        %% D5.1
+        volume=5.1;
         split=-1;
         
         [cur_fig, ~, ~]=fPlotKaplanMeierCurve_DVx({CGobj},volume,split);
@@ -401,16 +401,16 @@ for i=1:length(toxicities)
             
             set(cur_fig,'Color','w');
             export_fig(cur_fig,...
-                [fig_basename,'_km_d48_med_split'],'-pdf');
+                [fig_basename,'_km_d51_med_split'],'-pdf');
             disp(['Saving ',...
-                fig_basename,'_km_d48_med_split.pdf']);
+                fig_basename,'_km_d51_med_split.pdf']);
                 
             %system('pdfcrop fname fname');% to remove borders
         end
         
                    
         %% D6.8
-        volume=6.8;
+        volume=3.8;
         split=-1;
         
         [cur_fig, ~, ~]=fPlotKaplanMeierCurve_DVx({CGobj},volume,split);
@@ -424,9 +424,9 @@ for i=1:length(toxicities)
             
             set(cur_fig,'Color','w');
             export_fig(cur_fig,...
-                [fig_basename,'_km_d68_med_split'],'-pdf');
+                [fig_basename,'_km_d38_med_split'],'-pdf');
             disp(['Saving ',...
-                fig_basename,'_km_d68_med_split.pdf']);
+                fig_basename,'_km_d38_med_split.pdf']);
                 
             %system('pdfcrop fname fname');% to remove borders
         end

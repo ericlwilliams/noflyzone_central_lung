@@ -304,7 +304,7 @@ for i=1:length(toxicities)
             %CIobjs(cur_i,1).mDateRelapse = datefailure(cur_i);
             
             if do_late_exclude, % mark late patients as censored
-                if ~flgcensor(cur_i) && (datepain(cur_i)-dateIGRT(cur_i))>90,
+                if ~flgcensor(cur_i) && (datepain(cur_i)-dateIGRT(cur_i))>100,%keeping patient at 99 days
                     CIobjs(cur_i,1).mFlgCensor = ~flgcensor(cur_i);
                     disp(['late: ',num2str(datepain(cur_i)-dateIGRT(cur_i)),10,...
                         'toxgrade: ',num2str(toxgrade(cur_i))])
@@ -367,13 +367,7 @@ for i=1:length(toxicities)
         CGobj_org = CGobj_org.fCalculateEUD();
 
         %     %% Analyses
-        
-    
-      
-        
-
-      
-          
+       
 
         %% TMP
 %         %% Cox model

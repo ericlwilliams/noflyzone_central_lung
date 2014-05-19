@@ -238,7 +238,7 @@ for i=1:length(toxicities)
             
             h_min_pval = loglog([x_pos_dvx(ploc) x_pos_dvx(ploc)],ylim,strcat(corr_col,'--'),'LineWidth',2);
             
-            disp(['Cox model significant for D_V, with V <',num2str(interp1(p(1:20),x_dvx(1:20),0.05))]);
+            disp(['Cox model significant for D_V, with V <',num2str(interp1(p(1:150),x_dvx(1:150),0.05))]);
             xlim([0 max(x_dvx)]);
             ylim([min(min(p),0.05)-0.001 1]);
             h_sig=loglog([min(x_dvx(x_dvx>0)) max(x_dvx)],[0.05 0.05],'g--','LineWidth',2);hold off;
