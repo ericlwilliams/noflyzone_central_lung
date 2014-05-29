@@ -187,7 +187,6 @@ for i=1:length(toxicities)
         
         
         %% D_Max
-        
         cur_fig=figure(cur_fig_ctr+400);
         set(gcf,'Position',ss_four2three);
         

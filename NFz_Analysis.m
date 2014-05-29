@@ -3,8 +3,8 @@ tic;
 save_result = true;
 mm_do_print = false;
 %beta2alpha=[1/3];a2b_corr = 'BED';
-beta2alpha=[1/10];a2b_corr = 'BED';
-%beta2alpha=[0];a2b_corr = 'PHYS';
+%beta2alpha=[1/10];a2b_corr = 'BED';
+beta2alpha=[0];a2b_corr = 'PHYS';
 
 tox_grade = 2;% toxicity defined as >= tox_grade
 
@@ -36,8 +36,8 @@ end
 
 %structures = {'PTV' 'GTV'};
 
-structures = {'ESOPHAGUS'};
-%structures = {'ILUNG' 'HEART' 'NFZ' 'PBT' 'LUNGS' 'ESOPHAGUS'};
+%structures = {'ESOPHAGUS'};
+structures = {'ILUNG' 'HEART' 'NFZ' 'PBT' 'LUNGS' 'ESOPHAGUS'};
 %structures = {'HEART'};
 
 %toxicities = {'lclfail'};

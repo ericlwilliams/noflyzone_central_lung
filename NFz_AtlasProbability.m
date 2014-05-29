@@ -38,7 +38,7 @@ for i=1:length(toxicities)
                         a2b{1}];
     
      %% load data
-        fn = ['NFZ_',structures{j},'_',toxicities{i},'_a2b',a2b{1},'_data.mat'];
+        fn = ['NFZ_',structures{j},'_',toxicities{i},'_a2b',a2b{1},'_acute_data.mat'];
 
         load(strcat(fp,fn),'CGobj_org');
         CGobj = CGobj_org;
@@ -84,16 +84,20 @@ for i=1:length(toxicities)
   CGobj.fProbabilityFig_DVH('');
   hold on;
   % bin locations determined by hand
-  h_fit=plot(91,39,'xk','MarkerSize',20,'LineWidth',4);
-  h_med=plot(58,39,'+k','MarkerSize',20,'LineWidth',4);
+  % eg [~,med_bin] = min(abs(CGobj.mBinsDose - 11.7))
+  h_fit=plot(83,42,'xk','MarkerSize',20,'LineWidth',4);
+  h_med=plot(52,42,'+k','MarkerSize',20,'LineWidth',4);
     hold off;
   lgnd=legend([h_med h_fit],...
-      'Median split* of D_{3.5cc} [Gy_{10}] for complete dataset in physical dose',...
-      'Split* at 20% rate from regression using D_{3.5cc} [Gy_{10}]',...
+      ['Median split* of D$_{5\rm{cc}}$ [Gy$_{10}$] for complete dataset',10,'in physical dose'],...
+      'Split* at 20\% rate from regression using D$_{5\rm{cc}}$ [Gy$_{10}$]',...
       'Location','North');
-  set(lgnd,'FontSize',14);
+  set(lgnd,'FontSize',16);
+  set(lgnd,'interpreter','latex');
   %ylim([0.1,15]);
-  text(0,-0.11,['*Back calculated to physical',10', 'dose delivered in 5 fractions'],'Units','normalized');
+  %text(0,-0.11,['*Back calculated to physical',10', 'dose delivered in 5 fractions'],...
+  text(0.45,0.73,['*Back calculated to physical dose',10,'delivered in 5 fractions'],...
+      'Units','normalized','interpreter','latex','fontsize',14);
    set(gca,'FontSize',20)
   xlabel('Physical Dose [Gy]','FontSize',22);
   ylabel('Volume [cc]','FontSize',22);
@@ -115,16 +119,20 @@ for i=1:length(toxicities)
   CGobj.fProbabilityFig_DVH('');
   hold on;
   % bin locations determined by hand
-  h_fit=plot(86,39,'xk','MarkerSize',20,'LineWidth',4);
-  h_med=plot(56,39,'+k','MarkerSize',20,'LineWidth',4);
+  h_fit=plot(79,42,'xk','MarkerSize',20,'LineWidth',4);
+  h_med=plot(50,42,'+k','MarkerSize',20,'LineWidth',4);
   hold off;
-   lgnd=legend([h_med h_fit],...
-      'Median split* of D_{3.5cc} [Gy_{10}] for complete dataset in physical dose',...
-      'Split* at 20% rate from regression using D_{3.5cc} [Gy_{10}]',...
+  lgnd=legend([h_med h_fit],...
+      ['Median split* of D$_{5\rm{cc}}$ [Gy$_{10}$] for complete dataset',10,'in physical dose'],...
+      'Split* at 20\% rate from regression using D$_{5\rm{cc}}$ [Gy$_{10}$]',...
       'Location','North');
-  set(lgnd,'FontSize',14);
+  set(lgnd,'FontSize',16);
+  set(lgnd,'interpreter','latex');
   %ylim([0.1,15]);
-  text(0,-0.11,['*Back calculated to physical',10', 'dose delivered in 4 fractions'],'Units','normalized');
+%   text(0,-0.11,['*Back calculated to physical',10', 'dose delivered in 4 fractions'],...
+%       'Units','normalized','interpreter','latex');
+ text(0.45,0.73,['*Back calculated to physical dose',10,'delivered in 4 fractions'],...
+      'Units','normalized','interpreter','latex','fontsize',14);
      set(gca,'FontSize',20)
   xlabel('Physical Dose [Gy]','FontSize',22);
   ylabel('Volume [cc]','FontSize',22);
@@ -149,17 +157,21 @@ for i=1:length(toxicities)
   CGobj.fProbabilityFig_DVH('');
   hold on;
   % bin locations determined by hand
-  h_fit=plot(80,39,'xk','MarkerSize',20,'LineWidth',4);
-   h_med=plot(53,39,'+k','MarkerSize',20,'LineWidth',4);
+  h_fit=plot(74,42,'xk','MarkerSize',20,'LineWidth',4);
+   h_med=plot(47,42,'+k','MarkerSize',20,'LineWidth',4);
   hold off;
-  lgnd=legend([h_med h_fit],...
-      'Median split* of D_{3.5cc} [Gy_{10}] for complete dataset in physical dose',...
-      'Split* at 20% rate from regression using D_{3.5cc} [Gy_{10}]',...
+    lgnd=legend([h_med h_fit],...
+      ['Median split* of D$_{5\rm{cc}}$ [Gy$_{10}$] for complete dataset',10,'in physical dose'],...
+      'Split* at 20\% rate from regression using D$_{5\rm{cc}}$ [Gy$_{10}$]',...
       'Location','North');
-  set(lgnd,'FontSize',14);
+  set(lgnd,'FontSize',16);
+  set(lgnd,'interpreter','latex');
+
   %ylim([0.1,15]);
-  text(0,-0.11,['*Back calculated to physical',10', 'dose delivered in 3 fractions'],'Units','normalized');
-  
+%   text(0,-0.11,['*Back calculated to physical',10', 'dose delivered in 3 fractions'],...
+%       'Units','normalized','interpreter','latex');
+   text(0.45,0.73,['*Back calculated to physical dose',10,'delivered in 3 fractions'],...
+      'Units','normalized','interpreter','latex','fontsize',14);
      set(gca,'FontSize',20)
   xlabel('Physical Dose [Gy]','FontSize',22);
   ylabel('Volume [cc]','FontSize',22);

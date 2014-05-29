@@ -6,16 +6,19 @@ screen_size=get(0,'ScreenSize');
 ss_two2two = [screen_size(3)/2 0 screen_size(4) screen_size(4)];
 ss_four2three = [0 0 screen_size(3)/2 (screen_size(4)/2)*(4/3)];
 
-do_print = true;
-fig_loc = 'Z:/elw/MATLAB/nfz_analy/slides/figures/latest/';
+do_print = false;
+%fig_loc = 'Z:/elw/MATLAB/nfz_analy/slides/figures/latest/';
+fig_loc = 'V:/cwdvhs/elw/MATLAB/nfz_analy/slides/figures/latest/';
+%fig_loc = 'pensmph6/MpcsResearch1/cwdvhs/elw/MATLAB/nfz_analy/slides/figures/latest/';
 
 %structures = {'ILUNG' 'ESOPHAGUS' 'HEART' 'NFZ' 'PBT' 'LUNGS'};
 structures = {'ESOPHAGUS'};
 %toxicities = {'rp','pultox','esotox'};
 toxicities = {'esotox'};
 
-fp = 'Z:\elw\MATLAB\nfz_analy\meta_data\';
-
+%fp = 'Z:\elw\MATLAB\nfz_analy\meta_data\';
+%fp = 'pensmph6\MpcsResearch1\cwdvhs\elw\MATLAB\nfz_analy\meta_data\';
+fp = 'V:\cwdvhs\elw\MATLAB\nfz_analy\meta_data\';
 %a2b = {'Inf' '3' '10'};
 a2b = {'Inf'};
 
@@ -76,7 +79,7 @@ for i=1:length(toxicities)
             
          set(cur_fig,'Color','w');
          export_fig(cur_fig,...
-            [fig_basename,'_box_euds_mld'],'-pdf');
+            [fig_basename,'_box_euds_mld'],'-png');
         disp(['Saving ',fig_basename,'_box_euds_mld.pdf']);
         end
         
